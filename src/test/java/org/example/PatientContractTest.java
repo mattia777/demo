@@ -81,7 +81,7 @@ public final class PatientContractTest {
 
             String json = "{\"value\":\"ThePatient\"}";
 
-            //contract.createPatient(ctx, "10001", "ThePatient");
+            //contract.createPatient(ctx, "10001", "Name", "Surname", "M/F", "27", "Hospital");
 
             verify(stub).putState("10001", json.getBytes(UTF_8));
         }
@@ -96,7 +96,7 @@ public final class PatientContractTest {
             when(stub.getState("10002")).thenReturn(new byte[] { 42 });
 
             Exception thrown = assertThrows(RuntimeException.class, () -> {
-               // contract.createPatient(ctx, "10002", "ThePatient");
+               // contract.createPatient(ctx, "10002", "Name", "Surname", "M/F", "27", "Hospital");
             });
 
             assertEquals(thrown.getMessage(), "The asset 10002 already exists");

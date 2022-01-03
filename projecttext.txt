@@ -1,1 +1,19 @@
 https://github.com/mattia777/demo.git
+
+sc > ...> create new project >
+sc > ... > package open project >
+sc > ... > fabric env. > my channel > +deploy sc >
+
+
+cercare file connection profile file json ???
+cercare wallet utente (sempre un file con vhiave privata utente) ???
+
+
+migliorare sc solo per i medici;
+
+- il paziente può leggere SOLO i propri dati.
+- se un utente è dottore può leggere i dati di TUTTI i pazienti.
+(vedere l'utente chiamante con ctx.getStub e verificare se un utente è paziente o dottore).
+
+
+String usertype = ctx.getClientIdentity().getAttributeValue("usetype"); //per sapere se l'utente è dottore o paziente

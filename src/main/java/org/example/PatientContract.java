@@ -41,13 +41,16 @@ public class PatientContract implements ContractInterface {
     }
 
     @Transaction()
-    public void createPatient(Context ctx, String patientId, String patientname, String value) { //<<<<
+    public void createPatient(Context ctx, String patientId, String name, String surname, String sex, int age, String hospital) { //<<<<
 
         PatientEvent event = new PatientEvent();
         event.put("created@", ctx.getStub().getTxTimestamp().toString()); //<<<<
         event.put("Patient_Id", patientId);
-        event.put("Patient_name", patientname);
-        event.put("Value", value);
+        event.put("Patient_name", name);
+        event.put("Patient_surname", surname);
+        event.put("Patient_sex", sex);
+        event.put("Patient_age", age);
+        event.put("Hospital", hospital);
         event.put("ID_Transaction", ctx.getStub().getTxId());
         event.put("CalledFnc", ctx.getStub().getFunction());
 
@@ -57,28 +60,14 @@ public class PatientContract implements ContractInterface {
             throw new RuntimeException("The "+patientId+" already exists");
         }
         Patient asset = new Patient();
-        asset.setValue(value);
+        asset.setName(name); // <<<
+        asset.setSurname(surname); // <<<
+        asset.setSex(sex); // <<<
+        asset.setAge(age); // <<<
+        asset.setH(hospital); // <<<
         ctx.getStub().putState(patientId, asset.toJSONString().getBytes(UTF_8));
         ctx.getStub().setEvent("Patient "+patientId+" created", event.toJSONString().getBytes(UTF_8)); //<<<<
     }
-
-    /*
-
-    @Transaction() // <<<<
-    public boolean ehrExists(Context ctx, String ehrId) {
-        byte[] buffer = ctx.getStub().getState(ehrId);
-        return (buffer != null && buffer.length > 0);
-    }
-    
-    @Transaction() // <<<<
-    public void createEHR(Context ctx, String ehrId){
-        boolean ehrexists = ehrExists(ctx, ehrId);
-        if(ehrexists){
-            throw new RuntimeException("The Electronic Health Record " + ehrId + " already exists");
-        }
-        EHR asset = new EHR(); 
-    }
-    */
 
     @Transaction()
     public Patient readPatient(Context ctx, String patientId) {
@@ -92,13 +81,13 @@ public class PatientContract implements ContractInterface {
         if (!exists) {
             throw new RuntimeException("The asset "+patientId+" does not exist");
         }
-
+        
         Patient newAsset = Patient.fromJSONString(new String(ctx.getStub().getState(patientId),UTF_8));
         return newAsset;
     }
 
     @Transaction()
-    public void updatePatient(Context ctx, String patientId, String newValue) {
+    public void updatePatient(Context ctx, String patientId, String name, String surname, String sex, int age, String hospital) {
 
         PatientEvent event = new PatientEvent();
         event.put("updated@", ctx.getStub().getTxTimestamp().toString()); //<<<<
@@ -108,7 +97,11 @@ public class PatientContract implements ContractInterface {
             throw new RuntimeException("The asset "+patientId+" does not exist");
         }
         Patient asset = new Patient();
-        asset.setValue(newValue);
+        asset.setName(name); // <<<
+        asset.setSurname(surname); // <<<
+        asset.setSex(sex); // <<<
+        asset.setAge(age); // <<<
+        asset.setH(hospital); // <<<
         ctx.getStub().putState(patientId, asset.toJSONString().getBytes(UTF_8));
         }
 
@@ -121,22 +114,95 @@ public class PatientContract implements ContractInterface {
         }
         ctx.getStub().delState(patientId);
     }
+
+
+
+
+
+
+
+
+    /** DOCTOR CONTRACT*/
     
+    private class DoctorEvent extends JSONObject {
+        public DoctorEvent(){
+            this.put("eventSource", "DoctorManagerContract");
+        }
+        public String toJSONString(){
+            return this.toString();
+        }
+    }
+
+    @Transaction() 
+    public boolean doctorExists(Context ctx, String doctorId) {
+        byte[] buffer = ctx.getStub().getState(doctorId);
+        return (buffer != null && buffer.length > 0);
+    }
+
+    @Transaction()
+    public void createDoctor(Context ctx, String doctorId, String name, String surname, String hospital) { //<<<<
+
+        DoctorEvent event = new DoctorEvent();
+        event.put("created@", ctx.getStub().getTxTimestamp().toString()); //<<<<
+        event.put("Dr_Id", doctorId);
+        event.put("Dr_name", name);
+        event.put("Dr_surname", surname);
+        event.put("Hospital", hospital);
+        event.put("ID_Transaction", ctx.getStub().getTxId());
+        event.put("CalledFnc", ctx.getStub().getFunction());
+
+        boolean exists = doctorExists(ctx,doctorId);
+        if (exists) {
+            ctx.getStub().setEvent("Doctor "+doctorId+" NOT created", event.toJSONString().getBytes(UTF_8));
+            throw new RuntimeException("The "+doctorId+" already exists");
+        }
+        Doctor asset = new Doctor();
+        asset.setName(name); // <<<
+        asset.setSurname(surname); // <<<
+        asset.setH(hospital); // <<<
+        ctx.getStub().putState(doctorId, asset.toJSONString().getBytes(UTF_8));
+        ctx.getStub().setEvent("Doctor "+doctorId+" created", event.toJSONString().getBytes(UTF_8)); //<<<<
+    }
+
+    /*@Transaction()
+    public Doctor readDoctor(Context ctx, String doctorId) {
+
+        DoctorEvent event = new DoctorEvent();
+        event.put("read@", ctx.getStub().getTxTimestamp().toString()); //<<<<
+        event.put("Id", doctorId); //<<<<
+        event.put("hash", ctx.getStub().hashCode()); //<<<<
+
+        boolean exists = doctorExists(ctx, doctorId);
+        if (!exists) {
+            throw new RuntimeException("The asset "+doctorId+" does not exist");
+        }
+        
+        Doctor newAsset = Doctor.fromJSONString(new String(ctx.getStub().getState(doctorId),UTF_8));
+        return newAsset;
+    }*/
+
+    @Transaction()
+    public void updateDoctor(Context ctx, String doctorId, String name, String surname, String hospital) {
+
+        DoctorEvent event = new DoctorEvent();
+        event.put("updated@", ctx.getStub().getTxTimestamp().toString()); //<<<<
+
+        boolean exists = doctorExists(ctx, doctorId);
+        if (!exists) {
+            throw new RuntimeException("The asset "+doctorId+" does not exist");
+        }
+        Doctor asset = new Doctor();
+        asset.setName(name); // <<<
+        asset.setSurname(surname); // <<<
+        asset.setH(hospital); // <<<
+        ctx.getStub().putState(doctorId, asset.toJSONString().getBytes(UTF_8));
+        }
+
+    /*@Transaction()
+    public String getuser(Context ctx){
+        String usertype = ctx.getClientIdentity().getAttributeValue("usertype");
+        return String;
+    }*/
 
 }
 
-/* 
-sc > ...> create new project >
-sc > ... > package open project >
-sc > ... > fabric env. > my channel > +deploy sc >
-
-
-cercare file connection profile file json
-cercare wallet utente (sempre un file con vhiave privata utente)
-studiare protocollo dicom 
-migliorare sc solo per i medici 
-paziente può leggere dati propri
-se un utente è dottore può leggere i dati dei pazienti,
-vedere l'utente chiamante con ctx.getStub e verificare se un utente è paziente o dottore
-
- */
