@@ -1,0 +1,48 @@
+
+
+Crittografia asimmetrica
+
+ - Velocità: Lento
+
+ - Complessità computazionale richiesta: Bassa
+
+ - Condivisione chiave: Chiave pubblica condivisa tra tutti coloro che intendono 
+                        scambiare informazioni con il proprietario.
+
+ - Possibili utilizzi: Cifratura, Verifica Autenticità, Verifica Integrità
+
+ - Algoritmi : RSA, DSA, ELGAMAL
+
+La crittografia asimmetrica, anche nota come crittografia a chiave 
+pubblica/privata, è un tipo di crittografia in cui a ciascuna entità è 
+associata una coppia di chiavi:
+
+- Una chiave pubblica accessibile a tutti coloro che necessitano di 
+scambiare informazioni con l’entità proprietaria;
+    
+- Una chiave privata, custodita e tenuta segreta dal legittimo proprietario.
+
+In un processo di crittografia asimmetrica, qualsiasi messaggio crittografato 
+con una chiave privata potrà essere decifrato solo utilizzando la chiave 
+pubblica corrispondente. Il processo svincola quindi l’utente dalla necessità 
+di dover scambiare le chiavi prima di qualunque comunicazione. Nei processi di
+crittografia a chiave pubblica non è necessario preoccuparsi dello scambio di 
+chiavi: gli algoritmi utilizzati non consentono di risalire alla chiave 
+privata partendo dalla chiave pubblica. I principali utilizzi della 
+crittografia asimmetrica sono:
+
+- Invio di un messaggio cifrato ad un destinatario: il mittente cifra il 
+messaggio con la chiave pubblica del destinatario, che sarà quindi l’unico a 
+poter decifrare il messaggio utilizzando la sua chiave privata;
+   
+-  Non ripudiabilità del messaggio: il proprietario della chiave privata 
+cifra il messaggio con la propria chiave privata, qualunque entità che possa 
+accedere alla chiave pubblica del firmatario potrà decifrarlo con la stessa 
+ed essere quindi certo della sua autenticità.
+
+La crittografia asimmetrica presenta molti ambiti di impiego tra cui la firma 
+digitale, la verifica dell’autenticità di un documento, la verifica dell’integrità 
+del messaggio, l’informativa del messaggio, oppure la protezione dello scambio 
+delle chiavi simmetriche durante la procedura di scambio tra due entità.
+
+

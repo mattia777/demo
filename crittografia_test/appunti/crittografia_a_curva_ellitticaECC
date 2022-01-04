@@ -1,0 +1,44 @@
+
+
+Crittografia a curva ellittica (ECC) utilizza le proprietà matematiche 
+delle curve ellittiche per produrre sistemi crittografici a chiave 
+pubblica. Come tutta la crittografia a chiave pubblica, ECC si basa su 
+funzioni matematiche semplici da calcolare in una direzione, ma molto 
+difficili da invertire. Nel caso di ECC, questa difficoltà risiede 
+nell'impossibilità di calcolare il logaritmo discreto di un elemento 
+di curva ellittica casuale rispetto a un punto base noto pubblicamente, 
+o il "problema del logaritmo discreto a curva ellittica" (ECDLP). 
+Algoritmo di firma digitale della curva ellittica (ECDSA) è un algoritmo 
+di firma ampiamente utilizzato per la crittografia a chiave pubblica che 
+utilizza ECC.
+
+Prestazioni:
+
+Per la maggior parte degli utenti, il punto importante da ricordare è che, 
+rispetto all'algoritmo RSA più maturo e ampiamente utilizzato, ECDSA offre 
+una forza crittografica equivalente con dimensioni della chiave molto 
+inferiori. Sebbene la crittografia simmetrica sia lo schema più performante 
+utilizzato oggi, una qualche forma di crittografia asimmetrica è necessaria 
+per un SSL /TLS stretta di mano. Gli algoritmi ECC offrono l'equivalente 
+asimmetrico più vicino alla crittografia simmetrica in termini di prestazioni. 
+Come mostrato nella tabella seguente, le dimensioni della chiave ECDSA 
+aumentano in modo lineare con chiavi di crittografia simmetriche di forza 
+equivalente (pari a 2 volte la dimensione della chiave simmetrica), mentre 
+le chiavi RSA diventano rapidamente molto più grandi:
+
+Simmetrico = [80, 112, 128, 192, 256]
+ECDSA = [160, 224, 256, 384, 512]
+RSA = [1024, 2048, 3072, 7680, 15360]
+
+Le dimensioni della chiave più piccole di ECDSA significano che è possibile 
+ottenere una crittografia più forte con una potenza di calcolo e una larghezza 
+di banda di rete inferiori rispetto a RSA; Ciò è particolarmente vantaggioso 
+per i dispositivi mobili e Internet of Things (IoT) a bassa potenza, che stanno 
+diventando sempre più onnipresenti.
+
+L'ECDSA è stato approvato dal National Institute of Standards and Technology 
+(NIST) degli Stati Uniti ed è attualmente approvato dalla National Security Agency 
+(NSA) degli Stati Uniti per la protezione delle informazioni top-secret con una 
+dimensione chiave di 384 bit (equivalente a un 7680- bit chiave RSA).
+
+
