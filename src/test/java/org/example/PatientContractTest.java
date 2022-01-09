@@ -81,7 +81,9 @@ public final class PatientContractTest {
 
             String json = "{\"value\":\"ThePatient\"}";
 
-            //contract.createPatient(ctx, "10001", "Name", "Surname", "M/F", "27", "Hospital");
+            contract.createPatient(ctx, "10001", "Name", "Surname", "Gender", 27);
+            contract.createDoctor(ctx, "doctorId", "name", "surname", "hospital");
+            contract.createDICOM(ctx, "dicomId", "Filename", "FileDate", "FileSize", "Format", "FormatVersion", "Width", "Height", "BitDepth", "ColorType");
 
             verify(stub).putState("10001", json.getBytes(UTF_8));
         }
@@ -96,10 +98,14 @@ public final class PatientContractTest {
             when(stub.getState("10002")).thenReturn(new byte[] { 42 });
 
             Exception thrown = assertThrows(RuntimeException.class, () -> {
-               // contract.createPatient(ctx, "10002", "Name", "Surname", "M/F", "27", "Hospital");
+                contract.createPatient(ctx, "10001", "Name", "Surname", "Gender", 27);
+                contract.createDoctor(ctx, "doctorId", "name", "surname", "hospital");
+                contract.createDICOM(ctx, "dicomId", "Filename", "FileDate", "FileSize", "Format", "FormatVersion", "Width", "Height", "BitDepth", "ColorType");
             });
 
-            assertEquals(thrown.getMessage(), "The asset 10002 already exists");
+            assertEquals(thrown.getMessage(), "Patient already exists");
+            assertEquals(thrown.getMessage(), "Doctor already exists");
+            assertEquals(thrown.getMessage(), "DICOM already exists");
 
         }
 
@@ -113,13 +119,13 @@ public final class PatientContractTest {
         when(ctx.getStub()).thenReturn(stub);
 
         Patient asset = new  Patient();
-        asset.setValue("Valuable");
+        asset.setName("name");
 
         String json = asset.toJSONString();
         when(stub.getState("10001")).thenReturn(json.getBytes(StandardCharsets.UTF_8));
 
         Patient returnedAsset = contract.readPatient(ctx, "10001");
-        assertEquals(returnedAsset.getValue(), asset.getValue());
+        assertEquals(returnedAsset.getName(), asset.getName());
     }
 
     @Nested
@@ -132,7 +138,7 @@ public final class PatientContractTest {
             when(ctx.getStub()).thenReturn(stub);
             when(stub.getState("10001")).thenReturn(new byte[] { 42 });
 
-            contract.updatePatient(ctx, "10001", "updates");
+            contract.updatePatient(ctx, "10001", "updates", "NameSurname", "Gender", 27);
 
             String json = "{\"value\":\"updates\"}";
             verify(stub).putState("10001", json.getBytes(UTF_8));
@@ -148,7 +154,7 @@ public final class PatientContractTest {
             when(stub.getState("10001")).thenReturn(null);
 
             Exception thrown = assertThrows(RuntimeException.class, () -> {
-                contract.updatePatient(ctx, "10001", "ThePatient");
+                contract.updatePatient(ctx, "10001", "ThePatient", "NameSurname", "Gender", 27);
             });
 
             assertEquals(thrown.getMessage(), "The asset 10001 does not exist");

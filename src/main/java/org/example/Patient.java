@@ -9,93 +9,37 @@ import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 //import com.google.gson.JsonObject;
 //import com.owlike.genson.Genson;
-import org.json.JSONObject; // <<<ss
+import org.json.JSONObject;
 
 @DataType()
-public class Patient {
+public class Patient extends User {
 
     //private final static Genson genson = new Genson();
-
-    @Property()
-    private String name; // <<<
-
-    @Property()
-    private String surname; // <<<
-
-    @Property()
-    private String sex; // <<<
-
-    @Property()
-    private int age; // <<<
     
     @Property()
-    private String hospital; // <<<
-
-
+    private String studyid;
 
     public Patient(){
     }
 
-    public String getName() { // <<<
-        return name;
+    public String getStudyId(){
+        return studyid;
     }
 
-    public String getSurname() { // <<<
-        return surname;
+    public void setStudyId(String value) {
+        this.studyid = value;
     }
-    
-    public String getSex() { // <<<
-        return sex;
-    }
-
-    public int getAge() { // <<<
-        return age;
-    }
-
-    public String getH() { // <<<
-        return hospital;
-    }
-
-    public void setName(String value) { // <<<
-        this.name = value;
-    }
-
-    public void setSurname(String value) { // <<<
-        this.surname = value;
-    }
-
-    public void setSex(String value) { // <<<
-        this.sex = value;
-    }
-
-    public void setAge(int value) { // <<<
-        this.age = value;
-    }
-
-    public void setH(String value) { // <<<
-        this.hospital = value;
-    }
-
-
 
     public String toJSONString() {
-        return new JSONObject(this).toString(); // <<<
+        return new JSONObject(this).toString();
         //return genson.serialize(this).toString();
     }
 
     public static Patient fromJSONString(String json) {
-        String name = new JSONObject(json).getString("name"); // <<<
-        String surname = new JSONObject(json).getString("surname"); // <<<
-        String sex = new JSONObject(json).getString("sex"); // <<<
-        int age = new JSONObject(json).getInt("age"); // <<<
-        String hospital = new JSONObject(json).getString("hospital"); // <<<
+        String studyid = new JSONObject(json).getString("studyid");
 
-        Patient asset = new Patient(); // <<<
-        asset.setName(name); // <<<
-        asset.setSurname(surname); // <<<
-        asset.setSex(sex); // <<<
-        asset.setAge(age); // <<<
-        asset.setH(hospital); // <<<
+        Patient asset = new Patient();
+        asset.setName(studyid);
         //Patient asset = genson.deserialize(json, Patient.class);
         return asset;
     }

@@ -1,19 +1,27 @@
-https://github.com/mattia777/demo.git
 
-sc > ...> create new project >
-sc > ... > package open project >
-sc > ... > fabric env. > my channel > +deploy sc >
-
-
-cercare file connection profile file json ???
-cercare wallet utente (sempre un file con vhiave privata utente) ???
-
-
-migliorare sc solo per i medici;
-
+- Implementare lettura metadati DICOM 
 - il paziente può leggere SOLO i propri dati.
 - se un utente è dottore può leggere i dati di TUTTI i pazienti.
 (vedere l'utente chiamante con ctx.getStub e verificare se un utente è paziente o dottore).
 
-
 String usertype = ctx.getClientIdentity().getAttributeValue("usetype"); //per sapere se l'utente è dottore o paziente
+
+/**
+ * 
+ * C:\Users\scard\.fabric-vscode\v2\environments\1 Org Local Fabric\gateways
+ * Org1 Gateway.json (connection profile)
+ * {"certificateAuthorities":{"org1ca-api.127-0-0-1.nip.io:8081":{"url":"http://org1ca-api.127-0-0-1.nip.io:8081"}},"client":{"connection":{"timeout":{"orderer":"300","peer":{"endorser":"300"}}},"organization":"Org1"},"display_name":"Org1 Gateway","id":"org1gateway","name":"Org1 Gateway","organizations":{"Org1":{"certificateAuthorities":["org1ca-api.127-0-0-1.nip.io:8081"],"mspid":"Org1MSP","peers":["org1peer-api.127-0-0-1.nip.io:8081"]}},"peers":{"org1peer-api.127-0-0-1.nip.io:8081":{"grpcOptions":{"grpc.default_authority":"org1peer-api.127-0-0-1.nip.io:8081","grpc.ssl_target_name_override":"org1peer-api.127-0-0-1.nip.io:8081"},"url":"grpc://org1peer-api.127-0-0-1.nip.io:8081"}},"type":"gateway","version":"1.0","wallet":"Org1"}
+ * 
+ * C:\Users\scard\.fabric-vscode\v2\environments\1 Org Local Fabric
+ * .config.json
+ * {"name":"1 Org Local Fabric","managedRuntime":true,"environmentType":76,"environmentDirectory":"C:\\Users\\scard\\.fabric-vscode\\v2\\environments\\1 Org Local Fabric","numberOfOrgs":1,"url":"http://console.127-0-0-1.nip.io:8081","fabricCapabilities":"V2_0"}
+ * 
+ * C:\Users\scard\.fabric-vscode\v2\environments\1 Org Local Fabric\wallets\Org1
+ * Org1 Admin.id (wallet)
+ * {"credentials":{"certificate":"-----BEGIN CERTIFICATE-----\nMIIBzzCCAXSgAwIBAgIQUJ2ItHXxugO6dU97R4fUIjAKBggqhkjOPQQDAjASMRAw\nDgYDVQQDEwdPcmcxIENBMB4XDTIxMTIyMjE5MDQwOFoXDTMxMTIyMDE5MDQwOFow\nJTEOMAwGA1UECxMFYWRtaW4xEzARBgNVBAMTCk9yZzEgQWRtaW4wWTATBgcqhkjO\nPQIBBggqhkjOPQMBBwNCAASxYVzYxzA288KXxMpE9OBhJ4emVsMxkivNgsnKftzd\n+ZEPNbF2kRuIzZZVSYbZi3kXhtSku1/y7XTA14ehulfPo4GYMIGVMA4GA1UdDwEB\n/wQEAwIFoDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwDAYDVR0TAQH/\nBAIwADApBgNVHQ4EIgQgdGX68Sa6pMFVK3hQWghqff7sUfT0qNLFni9JcyQdDFsw\nKwYDVR0jBCQwIoAg98jfPclYObIMYOS5sxn/J1zvrmL18PvA2pqRr9SzHxgwCgYI\nKoZIzj0EAwIDSQAwRgIhAM3+6s94hicQKFRAvQeh4OW8Wce6fINCueHtRQvuZQzE\nAiEA84HncLHjSQc8r8+ClaI3GerD16ha0d3H2HzPTyFv0mU=\n-----END CERTIFICATE-----\n","privateKey":"-----BEGIN PRIVATE KEY-----\nMIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgAmM0minsZhR2GVfr\nAVSX2MIfTKHwVIraXZG0tC9yKhGhRANCAASxYVzYxzA288KXxMpE9OBhJ4emVsMx\nkivNgsnKftzd+ZEPNbF2kRuIzZZVSYbZi3kXhtSku1/y7XTA14ehulfP\n-----END PRIVATE KEY-----\n"},"mspId":"Org1MSP","type":"X.509","version":1}
+ * 
+ * C:\Users\scard\.fabric-vscode\v2\environments\1 Org Local Fabric\wallets\Org1
+ * Org1 CA Admin.id (wallet)
+ * {"credentials":{"certificate":"-----BEGIN CERTIFICATE-----\nMIIBoTCCAUegAwIBAgIULx1LddATUQBIjE1t2I+Kj6rwwq4wCgYIKoZIzj0EAwIw\nEjEQMA4GA1UEAxMHT3JnMSBDQTAeFw0yMTEyMjIxOTA0MDBaFw0yMjEyMjIxOTA5\nMDBaMCExDzANBgNVBAsTBmNsaWVudDEOMAwGA1UEAxMFYWRtaW4wWTATBgcqhkjO\nPQIBBggqhkjOPQMBBwNCAAQuEJbHPPqznu0HZvqtOwXLTE0A9BrY+KGWs+jeDI4O\nJfoQFrb/irUMax25qy2q7pWmlbr863w4K+grJu0W+ln6o2wwajAOBgNVHQ8BAf8E\nBAMCB4AwDAYDVR0TAQH/BAIwADAdBgNVHQ4EFgQUdg+XCr8Pw+djuwwAVKdFkcXA\ntD4wKwYDVR0jBCQwIoAg98jfPclYObIMYOS5sxn/J1zvrmL18PvA2pqRr9SzHxgw\nCgYIKoZIzj0EAwIDSAAwRQIhANXnW5os23DA7uKihNlQNi1He6UJGntGeSkc9cPP\nhvM5AiBuapBhd/m29NYQyVPmp8zEi6L3rNkiqgTxNzJcyn8oEQ==\n-----END CERTIFICATE-----\n","privateKey":"-----BEGIN PRIVATE KEY-----\nMIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg2X9Or9ApdpGfEJ4y\n610iKvmx/rvbr9rVeKE/CajDNdmhRANCAAQuEJbHPPqznu0HZvqtOwXLTE0A9BrY\n+KGWs+jeDI4OJfoQFrb/irUMax25qy2q7pWmlbr863w4K+grJu0W+ln6\n-----END PRIVATE KEY-----\n"},"mspId":"Org1MSP","type":"X.509","version":1}
+ * 
+ */
