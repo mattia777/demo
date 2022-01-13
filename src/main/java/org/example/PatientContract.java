@@ -41,10 +41,7 @@ public class PatientContract implements ContractInterface {
     }
 
     @Transaction()
-    public void createPatient(Context ctx, String patientId, String name, String surname, String gender, int age) {
-
-        //String usertype = ctx.getClientIdentity().getAttributeValue("usetype");                                                     
-        // <userType>:"doctor"
+    public void createPatient(Context ctx, String patientId, String name, String surname, String gender, int age) { 
 
         PatientEvent event = new PatientEvent();
         event.put("created@", ctx.getStub().getTxTimestamp().toString());
@@ -55,6 +52,8 @@ public class PatientContract implements ContractInterface {
         event.put("Patient_age", age);
         event.put("ID_Transaction", ctx.getStub().getTxId());
         event.put("CalledFnc", ctx.getStub().getFunction());
+
+
 
         boolean exists = patientExists(ctx,patientId);
         if (exists) {
@@ -122,17 +121,25 @@ public class PatientContract implements ContractInterface {
             return this.toString();
         }
     }
-
+    
     @Transaction() 
     public boolean doctorExists(Context ctx, String doctorId) {
         byte[] buffer = ctx.getStub().getState(doctorId);
         return (buffer != null && buffer.length > 0);
     }
 
+    
     @Transaction()
     public void createDoctor(Context ctx, String doctorId, String name, String surname, String hospital) {
-
+        
         DoctorEvent event = new DoctorEvent();
+        String usertype = ctx.getClientIdentity().getAttributeValue("usetype"); //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        String doctor = ctx.getClientIdentity().getAttributeValue("doctor");
+        if(usertype != doctor) {
+            event.put("different usertype", ctx);
+            event.put("@time", ctx.getStub().getTxTimestamp().toString());
+            throw new RuntimeException("The usertype "+usertype+" does not have the privileges");
+        }
         event.put("created@", ctx.getStub().getTxTimestamp().toString());
         event.put("Dr_Id", doctorId);
         event.put("Dr_name", name);
@@ -172,7 +179,7 @@ public class PatientContract implements ContractInterface {
     }
 
     @Transaction()
-    public void updateDoctor(Context ctx, String doctorId, String name, String surname, String hospital) {
+    public Doctor updateDoctor(Context ctx, String doctorId, String name, String surname, String hospital) {
 
         DoctorEvent event = new DoctorEvent();
         event.put("updated@", ctx.getStub().getTxTimestamp().toString());
@@ -182,13 +189,8 @@ public class PatientContract implements ContractInterface {
             throw new RuntimeException("The asset "+doctorId+" does not exist");
         }
         Doctor newAsset = Doctor.fromJSONString(new String(ctx.getStub().getState(doctorId),UTF_8));
+        return newAsset;
         }
-        
-    @Transaction()
-    public String getUser(Context ctx){
-        String usertype = ctx.getClientIdentity().getAttributeValue("usertype");
-        return usertype;
-    }
 
     
 
@@ -255,7 +257,7 @@ public class PatientContract implements ContractInterface {
     }
 
     @Transaction()
-    public void updateDICOM(Context ctx, String dicomId, String Filename, String FileDate, String FileSize, String Format, String FormatVersion, String Width, String Height, String BitDepth, String ColorType) {
+    public DICOM updateDICOM(Context ctx, String dicomId, String Filename, String FileDate, String FileSize, String Format, String FormatVersion, String Width, String Height, String BitDepth, String ColorType) {
 
         DICOMEvent event = new DICOMEvent();
         event.put("updated@", ctx.getStub().getTxTimestamp().toString());
@@ -265,7 +267,7 @@ public class PatientContract implements ContractInterface {
             throw new RuntimeException("The asset "+dicomId+" does not exist");
         }
         DICOM newAsset = DICOM.fromJSONString(new String(ctx.getStub().getState(dicomId),UTF_8));
+        return newAsset;
         }  
 
 }
-
