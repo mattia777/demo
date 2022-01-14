@@ -39,7 +39,7 @@ public class Patient extends User {
         String studyid = new JSONObject(json).getString("studyid");
 
         Patient asset = new Patient();
-        asset.setName(studyid);
+        asset.setStudyId(studyid);
         //Patient asset = genson.deserialize(json, Patient.class);
         return asset;
     }

@@ -82,8 +82,6 @@ public final class PatientContractTest {
             String json = "{\"value\":\"ThePatient\"}";
 
             contract.createPatient(ctx, "10001", "Name", "Surname", "Gender", 27);
-            contract.createDoctor(ctx, "doctorId", "name", "surname", "hospital");
-            contract.createDICOM(ctx, "dicomId", "Filename", "FileDate", "FileSize", "Format", "FormatVersion", "Width", "Height", "BitDepth", "ColorType");
 
             verify(stub).putState("10001", json.getBytes(UTF_8));
         }
@@ -99,8 +97,7 @@ public final class PatientContractTest {
 
             Exception thrown = assertThrows(RuntimeException.class, () -> {
                 contract.createPatient(ctx, "10001", "Name", "Surname", "Gender", 27);
-                contract.createDoctor(ctx, "doctorId", "name", "surname", "hospital");
-                contract.createDICOM(ctx, "dicomId", "Filename", "FileDate", "FileSize", "Format", "FormatVersion", "Width", "Height", "BitDepth", "ColorType");
+            
             });
 
             assertEquals(thrown.getMessage(), "Patient already exists");

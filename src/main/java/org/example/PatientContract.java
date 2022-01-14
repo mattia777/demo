@@ -9,14 +9,16 @@ import org.hyperledger.fabric.contract.annotation.Contract;
 import org.hyperledger.fabric.contract.annotation.Default;
 import org.hyperledger.fabric.contract.annotation.Transaction;
 import org.json.JSONObject;
+
 import org.hyperledger.fabric.contract.annotation.Contact;
 import org.hyperledger.fabric.contract.annotation.Info;
 import org.hyperledger.fabric.contract.annotation.License;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-@Contract(name = "PatientContract",
-    info = @Info(title = "Patient contract", description = "My Smart Contract", version = "0.0.1",
-    license = @License(name = "Apache-2.0", url = ""), contact =  @Contact(email = "scardamaglia.mattia@gmail.com", name = "cartella2", url = "http://cartella2.me")))
+import java.time.LocalDateTime;
+import java.util.LinkedList;
+
+@Contract(name = "PatientContract",info = @Info(title = "Patient contract", description = "My Smart Contract", version = "0.0.1", license = @License(name = "Apache-2.0", url = ""), contact =  @Contact(email = "scardamaglia.mattia@gmail.com", name = "cartella2", url = "http://cartella2.me")))
 
 @Default
 public class PatientContract implements ContractInterface {
@@ -44,7 +46,12 @@ public class PatientContract implements ContractInterface {
     public void createPatient(Context ctx, String patientId, String name, String surname, String gender, int age) { 
 
         PatientEvent event = new PatientEvent();
-        event.put("created@", ctx.getStub().getTxTimestamp().toString());
+        String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype"); //coppia chiave valore
+        if(usertypevalue != "doctor") {  // CHECK
+            event.put("@time", ctx.getStub().getTxTimestamp().toString());
+            throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges"); // EFFECT
+        }
+        event.put("created@", ctx.getStub().getTxTimestamp().toString()); // INTERACTIONS
         event.put("Patient_Id", patientId);
         event.put("Patient_name", name);
         event.put("Patient_surname", surname);
@@ -52,8 +59,6 @@ public class PatientContract implements ContractInterface {
         event.put("Patient_age", age);
         event.put("ID_Transaction", ctx.getStub().getTxId());
         event.put("CalledFnc", ctx.getStub().getFunction());
-
-
 
         boolean exists = patientExists(ctx,patientId);
         if (exists) {
@@ -73,6 +78,11 @@ public class PatientContract implements ContractInterface {
     public Patient readPatient(Context ctx, String patientId) {
 
         PatientEvent event = new PatientEvent();
+        String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
+        if(usertypevalue != "doctor" || usertypevalue != "patient") {
+            event.put("@time", ctx.getStub().getTxTimestamp().toString());
+            throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
+        }
         event.put("read@", ctx.getStub().getTxTimestamp().toString());
         event.put("Id", patientId);
         event.put("hash", ctx.getStub().hashCode());
@@ -89,6 +99,11 @@ public class PatientContract implements ContractInterface {
     public Patient updatePatient(Context ctx, String patientId, String name, String surname, String gender, int age) {
 
         PatientEvent event = new PatientEvent();
+        String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
+        if(usertypevalue != "doctor") {
+            event.put("@time", ctx.getStub().getTxTimestamp().toString());
+            throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
+        }
         event.put("updated@", ctx.getStub().getTxTimestamp().toString());
 
         boolean exists = patientExists(ctx,patientId);
@@ -99,9 +114,9 @@ public class PatientContract implements ContractInterface {
         return newAsset;
         }
 
-    
     @Transaction()
     public void deletePatient(Context ctx, String patientId){
+        
         boolean exists = patientExists(ctx,patientId);
         if (!exists) {
             throw new RuntimeException("The asset "+patientId+" does not exist");
@@ -109,9 +124,7 @@ public class PatientContract implements ContractInterface {
         ctx.getStub().delState(patientId);
     }
 
-    
-
-    //DOCTOR CONTRACT
+    /** < DOCTOR CONTRACT > */
     
     private class DoctorEvent extends JSONObject {
         public DoctorEvent(){
@@ -128,17 +141,14 @@ public class PatientContract implements ContractInterface {
         return (buffer != null && buffer.length > 0);
     }
 
-    
     @Transaction()
     public void createDoctor(Context ctx, String doctorId, String name, String surname, String hospital) {
         
         DoctorEvent event = new DoctorEvent();
-        String usertype = ctx.getClientIdentity().getAttributeValue("usetype"); //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        String doctor = ctx.getClientIdentity().getAttributeValue("doctor");
-        if(usertype != doctor) {
-            event.put("different usertype", ctx);
+        String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
+        if(usertypevalue != "admin") {
             event.put("@time", ctx.getStub().getTxTimestamp().toString());
-            throw new RuntimeException("The usertype "+usertype+" does not have the privileges");
+            throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
         }
         event.put("created@", ctx.getStub().getTxTimestamp().toString());
         event.put("Dr_Id", doctorId);
@@ -165,6 +175,11 @@ public class PatientContract implements ContractInterface {
     public Doctor readDoctor(Context ctx, String doctorId) {
 
         DoctorEvent event = new DoctorEvent();
+        String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
+        if(usertypevalue != "doctor") {
+            event.put("@time", ctx.getStub().getTxTimestamp().toString());
+            throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
+        }
         event.put("read@", ctx.getStub().getTxTimestamp().toString());
         event.put("Id", doctorId);
         event.put("hash", ctx.getStub().hashCode());
@@ -182,6 +197,11 @@ public class PatientContract implements ContractInterface {
     public Doctor updateDoctor(Context ctx, String doctorId, String name, String surname, String hospital) {
 
         DoctorEvent event = new DoctorEvent();
+        String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
+        if(usertypevalue != "admin") {
+            event.put("@time", ctx.getStub().getTxTimestamp().toString());
+            throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
+        }
         event.put("updated@", ctx.getStub().getTxTimestamp().toString());
 
         boolean exists = doctorExists(ctx, doctorId);
@@ -192,9 +212,7 @@ public class PatientContract implements ContractInterface {
         return newAsset;
         }
 
-    
-
-    // DICOM CONTRACT
+    /** < DICOM CONTRACT > */
     
     private class DICOMEvent extends JSONObject {
         
@@ -213,12 +231,22 @@ public class PatientContract implements ContractInterface {
     }
 
     @Transaction()
-    public void createDICOM(Context ctx, String dicomId, String Filename, String FileDate, String FileSize, String Format, String FormatVersion, String Width, String Height, String BitDepth, String ColorType) {
+    public void createDICOM(Context ctx, String dicomId, String Filename, LocalDateTime FileDateTime, Integer PatientID, String PatientName, Integer PatientAge, String PatientGender, Float PatientWeight, Integer HeartRate, String Modality, String StudyDescription, String AnatomyPlane, String ExtraNotes, String HospitalUID) {
 
         DICOMEvent event = new DICOMEvent();
+        String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
+        if(usertypevalue != "doctor") {
+            event.put("@time", ctx.getStub().getTxTimestamp().toString());
+            throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
+        }
         event.put("created@", ctx.getStub().getTxTimestamp().toString());
         event.put("ID_Transaction", ctx.getStub().getTxId());
         event.put("CalledFnc", ctx.getStub().getFunction());
+        
+        LinkedList<String> DICOMList = new LinkedList<String>();
+        DICOMList.add("dicomId");
+        for (String element: DICOMList)
+            System.out.println(element);
 
         boolean exists = dicomExists(ctx, dicomId);
         if (exists) {
@@ -227,25 +255,39 @@ public class PatientContract implements ContractInterface {
         }
         DICOM asset = new DICOM();
         asset.setFilename(Filename);
-        asset.setFileDate(FileDate);
-        asset.setFileSize(FileSize);
-        asset.setFormat(Format);
-        asset.setFormatVersion(FormatVersion);
-        asset.setWidth(Width);
-        asset.setHeight(Height);
-        asset.setBitDepth(BitDepth);
-        asset.setColorType(ColorType);
+        //asset.setFileDateTime(FileDateTime);
+        asset.setPatientID(PatientID);
+        asset.setPatientName(PatientName);
+        asset.setPatientAge(PatientAge);
+        asset.setPatientGender(PatientGender); 
+        asset.setPatientWeight(PatientWeight);
+        asset.setHeartRate(HeartRate);
+        asset.setModality(Modality);
+        asset.setStudyDescription(StudyDescription);
+        asset.setAnatomyPlane(AnatomyPlane);
+        asset.setExtraNotes(ExtraNotes);
+        asset.setHospitalUID(HospitalUID);
         ctx.getStub().putState(dicomId, asset.toJSONString().getBytes(UTF_8));
         ctx.getStub().setEvent("DICOM "+dicomId+" created", event.toJSONString().getBytes(UTF_8));
     }
 
     @Transaction()
-    public DICOM readDICOM(Context ctx, String dicomId) {
+    public DICOM readDICOM(Context ctx, String dicomId, Integer PatientID) {
 
         DICOMEvent event = new DICOMEvent();
+        String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
+        if(usertypevalue != "doctor" || usertypevalue != "patient") {
+            event.put("@time", ctx.getStub().getTxTimestamp().toString());
+            throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
+        }
         event.put("read@", ctx.getStub().getTxTimestamp().toString());
-        event.put("Id", dicomId);
+        event.put("DICOMId", dicomId);
+        event.put("PatientId", PatientID);
         event.put("hash", ctx.getStub().hashCode());
+
+        LinkedList<String> DICOMList = new LinkedList<String>();
+        for (String element: DICOMList)
+            System.out.println(element);
 
         boolean exists = dicomExists(ctx, dicomId);
         if (!exists) {
@@ -257,10 +299,20 @@ public class PatientContract implements ContractInterface {
     }
 
     @Transaction()
-    public DICOM updateDICOM(Context ctx, String dicomId, String Filename, String FileDate, String FileSize, String Format, String FormatVersion, String Width, String Height, String BitDepth, String ColorType) {
+    public DICOM updateDICOM(Context ctx, String dicomId, String Filename, LocalDateTime FileDateTime, Integer PatientID, String PatientName, Integer PatientAge, String PatientGender, Integer PatientWeight, Integer HeartRate, String Modality, String StudyDescripion, String AnatomyPlane, String ExtraNotes, String HospitalUID) {
 
         DICOMEvent event = new DICOMEvent();
+        String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
+        if(usertypevalue != "doctor") {
+            event.put("@time", ctx.getStub().getTxTimestamp().toString());
+            throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
+        }
         event.put("updated@", ctx.getStub().getTxTimestamp().toString());
+
+        LinkedList<String> DICOMList = new LinkedList<String>();
+        DICOMList.addLast("dicomId");
+        for (String element: DICOMList)
+            System.out.println(element);
 
         boolean exists = dicomExists(ctx, dicomId);
         if (!exists) {
@@ -271,3 +323,10 @@ public class PatientContract implements ContractInterface {
         }  
 
 }
+
+/**
+ 
+datatype "filedatetime"
+va bene usare linked list per gestire id dicom id paziente ecc
+
+ */
