@@ -120,40 +120,35 @@ public class Main {
 
 package org.example;
 
-//import org.apache.commons.collections.set.AbstractSortedSetDecorator;
-//import org.bouncycastle.pkcs.PKCS12MacCalculatorBuilderProvider;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 import org.json.JSONObject;
-
-//import java.time.LocalDateTime; // Import the LocalDateTime class
-//import java.time.format.DateTimeFormatter; // Import the DateTimeFormatter class
 
 @DataType()
 public class DICOM{
     
     @Property()
     private String Filename;
-    //@Property()
-    //private LocalDateTime FileDateTime = LocalDateTime.now();
     @Property()
-    private Integer PatientID;
+    private String FileDateTime;
+    @Property()
+    private String PatientID;
     @Property()
     private String PatientName;
     @Property()
-    private Integer PatientAge;
+    private String PatientAge;
     @Property()
     private String PatientGender;
     @Property()
-    private Float PatientWeight;
+    private String PatientWeight;
     @Property()
-    private Integer HeartRate;
+    private String HeartRate;
     @Property()
     private String Modality;
     @Property()
     private String StudyDescription;
     @Property()
-    private Integer ImagesInAcquisition;
+    private String ImagesInAcquisition;
     @Property()
     private String AnatomyPlane; // sagittale,coronale,trasverso
     @Property()
@@ -165,28 +160,71 @@ public class DICOM{
     public DICOM(){
     }
 
+    public String getFilename() {
+        return Filename;
+    }
+    public String getFileDateTime() {
+        return FileDateTime;
+    }
+    public String getPatientID() {
+        return PatientID;
+    }
+    public String getPatientName() {
+        return PatientName;
+    }
+    public String getPatientAge(){
+        return PatientAge;
+    }
+    public String getPatientGender(){
+        return PatientGender;
+    }
+    public String getPatientWeight(){
+        return PatientWeight;
+    }
+    public String getHeartRate(){
+        return HeartRate;
+    }
+    public String getModality(){
+        return Modality;
+    }
+    public String getStudyDescription(){
+        return StudyDescription;
+    }
+    public String getImagesInAcquisition(){
+        return ImagesInAcquisition;
+    }
+    public String getAnatomyPlane(){
+        return AnatomyPlane;
+    }
+    public String getExtraNotes(){
+        return ExtraNotes;
+    }
+    public String getHospitalUID(){
+        return HospitalUID;
+    }
+
     public void setFilename(String value) {
         this.Filename = value;
     }
-    //public void setFileDateTime(LocalDateTime value) {
-        //this.FileDateTime = value;
-    //}
-    public void setPatientID(Integer value) {
+    public void setFileDateTime(String value) {
+        this.FileDateTime = value;
+    }
+    public void setPatientID(String value) {
         this.PatientID = value;
     }
     public void setPatientName(String value) {
         this.PatientName = value;
     }
-    public void setPatientAge(Integer value) {
+    public void setPatientAge(String value) {
         this.PatientAge = value;
     }
     public void setPatientGender(String value){
         this.PatientGender = value;
     }
-    public void setPatientWeight(Float value) {
+    public void setPatientWeight(String value) {
         this.PatientWeight = value;
     }
-    public void setHeartRate(Integer value){
+    public void setHeartRate(String value){
         this.HeartRate = value;
     }
     public void setModality(String value) {
@@ -195,7 +233,7 @@ public class DICOM{
     public void setStudyDescription(String value) {
         this.StudyDescription = value;
     }
-    public void setImagesInAcquisition(Integer value) {
+    public void setImagesInAcquisition(String value) {
         this.ImagesInAcquisition = value;
     }
     public void setAnatomyPlane(String value) {
@@ -214,13 +252,13 @@ public class DICOM{
 
     public static DICOM fromJSONString(String json) {
         String Filename = new JSONObject(json).getString("Filename");
-        //LocalDateTime FileDateTime = new JSONObject(json).; <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        Integer PatientID = new JSONObject(json).getInt("PatientID");
+        String FileDateTime = new JSONObject(json).getString("FileDateTime");
+        String PatientID = new JSONObject(json).getString("PatientID");
         String PatientName = new JSONObject(json).getString("PatientName");
-        Integer PatientAge = new JSONObject(json).getInt("PatientAge");
+        String PatientAge = new JSONObject(json).getString("PatientAge");
         String PatientGender = new JSONObject(json).getString("PatientGender");
-        Float PatientWeight = new JSONObject(json).getFloat("PatientWeight");
-        Integer HeartRate = new JSONObject(json).getInt("HeartRate");
+        String PatientWeight = new JSONObject(json).getString("PatientWeight");
+        String HeartRate = new JSONObject(json).getString("HeartRate");
         String Modality = new JSONObject(json).getString("Modality");
         String StudyDescription = new JSONObject(json).getString("StudyDescription");
         String AnatomyPalne = new JSONObject(json).getString("AnatomyPlane");
@@ -229,7 +267,7 @@ public class DICOM{
 
         DICOM asset = new DICOM();
         asset.setFilename(Filename);
-        //asset.setFileDateTime(FileDateTime);
+        asset.setFileDateTime(FileDateTime);
         asset.setPatientID(PatientID);
         asset.setPatientName(PatientName);
         asset.setPatientAge(PatientAge);

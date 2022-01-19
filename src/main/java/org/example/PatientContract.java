@@ -15,7 +15,6 @@ import org.hyperledger.fabric.contract.annotation.Info;
 import org.hyperledger.fabric.contract.annotation.License;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import java.time.LocalDateTime;
 import java.util.LinkedList;
 
 @Contract(name = "PatientContract",info = @Info(title = "Patient contract", description = "My Smart Contract", version = "0.0.1", license = @License(name = "Apache-2.0", url = ""), contact =  @Contact(email = "scardamaglia.mattia@gmail.com", name = "cartella2", url = "http://cartella2.me")))
@@ -43,7 +42,7 @@ public class PatientContract implements ContractInterface {
     }
 
     @Transaction()
-    public void createPatient(Context ctx, String patientId, String name, String surname, String gender, int age) { 
+    public void createPatient(Context ctx, String patientId, String name, String surname, String gender, String age) { 
 
         PatientEvent event = new PatientEvent();
         String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype"); //coppia chiave valore
@@ -96,7 +95,7 @@ public class PatientContract implements ContractInterface {
     }
 
     @Transaction()
-    public Patient updatePatient(Context ctx, String patientId, String name, String surname, String gender, int age) {
+    public Patient updatePatient(Context ctx, String patientId, String name, String surname, String gender, String age) {
 
         PatientEvent event = new PatientEvent();
         String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
@@ -231,7 +230,7 @@ public class PatientContract implements ContractInterface {
     }
 
     @Transaction()
-    public void createDICOM(Context ctx, String dicomId, String Filename, LocalDateTime FileDateTime, Integer PatientID, String PatientName, Integer PatientAge, String PatientGender, Float PatientWeight, Integer HeartRate, String Modality, String StudyDescription, String AnatomyPlane, String ExtraNotes, String HospitalUID) {
+    public void createDICOM(Context ctx, String dicomId, String Filename, String FileDateTime, String PatientID, String PatientName, String PatientAge, String PatientGender, String PatientWeight, String HeartRate, String Modality, String StudyDescription, String AnatomyPlane, String ExtraNotes, String HospitalUID) {
 
         DICOMEvent event = new DICOMEvent();
         String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
@@ -255,7 +254,7 @@ public class PatientContract implements ContractInterface {
         }
         DICOM asset = new DICOM();
         asset.setFilename(Filename);
-        //asset.setFileDateTime(FileDateTime);
+        asset.setFileDateTime(FileDateTime);
         asset.setPatientID(PatientID);
         asset.setPatientName(PatientName);
         asset.setPatientAge(PatientAge);
@@ -272,7 +271,7 @@ public class PatientContract implements ContractInterface {
     }
 
     @Transaction()
-    public DICOM readDICOM(Context ctx, String dicomId, Integer PatientID) {
+    public DICOM readDICOM(Context ctx, String dicomId, String PatientID) {
 
         DICOMEvent event = new DICOMEvent();
         String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
@@ -299,7 +298,7 @@ public class PatientContract implements ContractInterface {
     }
 
     @Transaction()
-    public DICOM updateDICOM(Context ctx, String dicomId, String Filename, LocalDateTime FileDateTime, Integer PatientID, String PatientName, Integer PatientAge, String PatientGender, Integer PatientWeight, Integer HeartRate, String Modality, String StudyDescripion, String AnatomyPlane, String ExtraNotes, String HospitalUID) {
+    public DICOM updateDICOM(Context ctx, String dicomId, String Filename, String FileDateTime, String PatientID, String PatientName, String PatientAge, String PatientGender, String PatientWeight, String HeartRate, String Modality, String StudyDescripion, String AnatomyPlane, String ExtraNotes, String HospitalUID) {
 
         DICOMEvent event = new DICOMEvent();
         String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
@@ -323,10 +322,3 @@ public class PatientContract implements ContractInterface {
         }  
 
 }
-
-/**
- 
-datatype "filedatetime"
-va bene usare linked list per gestire id dicom id paziente ecc
-
- */

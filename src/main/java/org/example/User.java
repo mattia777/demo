@@ -14,7 +14,7 @@ public class User {
     @Property()
     private String gender;
     @Property()
-    private int age;
+    private String age;
     
     public User(){
     }
@@ -33,7 +33,7 @@ public class User {
         return gender;
     }
 
-    public int getAge() {
+    public String getAge() {
         return age;
     }
 
@@ -51,7 +51,7 @@ public class User {
         this.gender = value;
     }
 
-    public void setAge(Integer value) {
+    public void setAge(String value) {
         this.age = value;
     }
 
@@ -63,7 +63,7 @@ public class User {
         String name = new JSONObject(json).getString("name");
         String surname = new JSONObject(json).getString("surname");
         String gender = new JSONObject(json).getString("gender");
-        Integer age = new JSONObject(json).getInt("age");
+        String age = new JSONObject(json).getString("age");
 
         User asset = new User();
         asset.setName(name);
