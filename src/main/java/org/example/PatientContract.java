@@ -85,6 +85,7 @@ public class PatientContract implements ContractInterface {
         event.put("read@", ctx.getStub().getTxTimestamp().toString());
         event.put("Id", patientId);
         event.put("hash", ctx.getStub().hashCode());
+        ctx.getStub().setEvent("Reading info of "+patientId, event.toJSONString().getBytes(UTF_8));
 
         boolean exists = patientExists(ctx,patientId);
         if (!exists) {
@@ -105,7 +106,7 @@ public class PatientContract implements ContractInterface {
         }
         event.put("updated@", ctx.getStub().getTxTimestamp().toString());
 
-        boolean exists = patientExists(ctx,patientId);
+        boolean exists = patientExists(ctx, patientId);
         if (!exists) {
             throw new RuntimeException("The asset "+patientId+" does not exist");
         }
@@ -182,6 +183,7 @@ public class PatientContract implements ContractInterface {
         event.put("read@", ctx.getStub().getTxTimestamp().toString());
         event.put("Id", doctorId);
         event.put("hash", ctx.getStub().hashCode());
+        ctx.getStub().setEvent("Reading info of "+doctorId, event.toJSONString().getBytes(UTF_8));
 
         boolean exists = doctorExists(ctx, doctorId);
         if (!exists) {
@@ -246,6 +248,7 @@ public class PatientContract implements ContractInterface {
         DICOMList.add("dicomId");
         for (String element: DICOMList)
             System.out.println(element);
+        event.put(PatientID+" NEW DICOM LIST :", DICOMList);
 
         boolean exists = dicomExists(ctx, dicomId);
         if (exists) {
@@ -287,6 +290,7 @@ public class PatientContract implements ContractInterface {
         LinkedList<String> DICOMList = new LinkedList<String>();
         for (String element: DICOMList)
             System.out.println(element);
+        event.put(PatientID+" DICOM LIST :", DICOMList);
 
         boolean exists = dicomExists(ctx, dicomId);
         if (!exists) {
@@ -312,6 +316,7 @@ public class PatientContract implements ContractInterface {
         DICOMList.addLast("dicomId");
         for (String element: DICOMList)
             System.out.println(element);
+        event.put(PatientID+" UPDATED DICOM LIST :", DICOMList);
 
         boolean exists = dicomExists(ctx, dicomId);
         if (!exists) {
