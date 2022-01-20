@@ -78,7 +78,7 @@ public class PatientContract implements ContractInterface {
 
         PatientEvent event = new PatientEvent();
         String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
-        if(usertypevalue != "doctor" || usertypevalue != "patient") {
+        if(usertypevalue != "doctor" || usertypevalue != "patient") { // to fix : patients can ONLY read his info, right now all patients can read everyones info
             event.put("@time", ctx.getStub().getTxTimestamp().toString());
             throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
         }
@@ -244,7 +244,7 @@ public class PatientContract implements ContractInterface {
         event.put("ID_Transaction", ctx.getStub().getTxId());
         event.put("CalledFnc", ctx.getStub().getFunction());
         
-        LinkedList<String> DICOMList = new LinkedList<String>();
+        LinkedList<String> DICOMList = new LinkedList<String>(); // to fix, it doesnt save the dicomlist, FIX ALL LINKEDLISTS in the contract
         DICOMList.add("dicomId");
         for (String element: DICOMList)
             System.out.println(element);
@@ -278,7 +278,7 @@ public class PatientContract implements ContractInterface {
 
         DICOMEvent event = new DICOMEvent();
         String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
-        if(usertypevalue != "doctor" || usertypevalue != "patient") {
+        if(usertypevalue != "doctor" || usertypevalue != "patient") { // to fix : patients can ONLY read his DICOMs, right now all patients can read everyones DICOMs
             event.put("@time", ctx.getStub().getTxTimestamp().toString());
             throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
         }
