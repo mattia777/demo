@@ -3,9 +3,7 @@
  */
 
 package org.example;
-
 import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -14,10 +12,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.hyperledger.fabric.sdk.helper.Config;
@@ -28,7 +24,6 @@ import org.hyperledger.fabric.sdk.helper.Config;
  */
 
 public class JavaSmartContractUtil {
-
     public static String getConnectionProfile(Path connectionProfilePath) {
         String data = null;
         try {

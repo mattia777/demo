@@ -70,7 +70,7 @@ public class PatientContract implements ContractInterface {
         asset.setGender(gender);
         asset.setAge(age);
         ctx.getStub().putState(patientId, asset.toJSONString().getBytes(UTF_8));
-        ctx.getStub().setEvent("Patient "+patientId+" created", event.toJSONString().getBytes(UTF_8));
+        ctx.getStub().setEvent("Patient created", event.toJSONString().getBytes(UTF_8));
     }
 
     @Transaction()

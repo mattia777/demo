@@ -1,7 +1,7 @@
 /*
  * DICOM is a healthcare standard responsible for governing nearly all aspects of medical imaging such 
  * as image transmission, image interpretation, print management, procedure management and off-line 
- * storage, and is used in nearly all healthcare-related imaging “modalities” such as magnetic resonance, 
+ * storage, and is used in nearly all healthcare-related imaging modalities such as magnetic resonance, 
  * nuclear medicine, computed tomography and ultrasound. Nearly all clinical imaging workflows around 
  * the world are based on the DICOM standard. 
  
@@ -66,7 +66,7 @@ PercentPhaseFieldOfView = 100
 PixelBandwidth = 162.773
 ProtocolName = 324-58-2995/6 
 HeartRate = 474
-CardiacNumberOfImages = 0
+CardiacNumberOfImages = 0.\
 TriggerWindow = 0
 ReconstructionDiameter = 170
 ReceiveCoilName = HD TRknee PA
