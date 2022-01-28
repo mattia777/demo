@@ -84,12 +84,13 @@ import static org.assertj.core.api.Assertions.assertThatCode;
             gateway2 = builder2.connect();
             network2 = gateway2.getNetwork("mychannel");
             PatientManagerContract = network2.getContract("doctorProcess", "doctorContract");
-
+            
             builder3 = Gateway.createBuilder();
             builder3.identity(fabricWallet, admin).networkConfig(connectionProfilePath).discovery(true);
             gateway3 = builder3.connect();
             network3 = gateway3.getNetwork("mychannel");
             PatientManagerContract = network3.getContract("adminProcess", "adminContract");
+            
             
             PatientManagerContract.addContractListener(eventListener);
 
@@ -127,7 +128,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
             String processID = "test patient already exists" + currTime;
             String patientId = "patientId"; // <<<
             String[] args = new String[] { processID, patientId }; // <<<
-            byte[] response = PatientManagerContract.submitTransaction("createpatient", args);
+            byte[] response = PatientManagerContract.submitTransaction("alreadyapatient", args);
             String responseString = new String(response);
             assertThat(responseString).isEqualTo("The Patient " + processID + " already exists");
         }
@@ -137,7 +138,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
         String processID = "test read patient" + currTime;
         String patientId = "patientId"; // <<<
         String[] args = new String[] { processID, patientId}; // <<<
-        byte[] response = PatientManagerContract.evaluateTransaction("readObject", args);
+        byte[] response = PatientManagerContract.evaluateTransaction("readpatient", args);
         String responseString = new String(response);
         System.out.println(responseString);
         assertThat(responseString).contains("INITIATED");
@@ -148,7 +149,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
         String processID = "test failure patient read / user type invalid" + currTime;
         String patientId = "patientId"; // <<<
         String[] args = new String[] { processID, patientId }; // <<<
-        byte[] response = PatientManagerContract.evaluateTransaction("readObject", args);
+        byte[] response = PatientManagerContract.evaluateTransaction("readpatientfailed", args);
         String responseString = new String(response);
         assertThat(responseString).contains("Invalid user type: patient");
     }
@@ -193,7 +194,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
             String processID = "test doctor already exists" + currTime;
             String doctorId = "doctorId";
             String[] args = new String[] { processID, doctorId };
-            byte[] response = PatientManagerContract.submitTransaction("createdoctor", args);
+            byte[] response = PatientManagerContract.submitTransaction("alreadyadoctor", args);
             String responseString = new String(response);
             assertThat(responseString).isEqualTo("The Doctor " + processID + " already exists");
         }
@@ -203,7 +204,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
         String processID = "test read doctor" + currTime;
         String doctorId = "doctorId";
         String[] args = new String[] { processID, doctorId };
-        byte[] response = PatientManagerContract.evaluateTransaction("readObject", args);
+        byte[] response = PatientManagerContract.evaluateTransaction("readdoctor", args);
         String responseString = new String(response);
         System.out.println(responseString);
         assertThat(responseString).contains("INITIATED");
@@ -214,7 +215,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
         String processID = "test of failure Doctor read, user type invalid" + currTime;
         String doctorId = "doctorId";
         String[] args = new String[] { processID, doctorId };
-        byte[] response = PatientManagerContract.evaluateTransaction("readObject", args);
+        byte[] response = PatientManagerContract.evaluateTransaction("readdoctorfailed", args);
         String responseString = new String(response);
         assertThat(responseString).contains("Invalid user type: doctor");
     }
@@ -229,7 +230,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
             String surname = "doctorsurnmae";
             String hospital = "hospital";
             String[] args = new String[] { processID, doctorId, name, surname, hospital };
-            byte[] response = PatientManagerContract.submitTransaction("createdoctor", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
+            byte[] response = PatientManagerContract.submitTransaction("updatedoctor", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
             String responseString = new String(response);
             assertThat(responseString).isEqualTo("Doctor updated"); // se ritorna true il test sarà positivo
         }
@@ -269,7 +270,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
             String processID = "test DICOM already exists" + currTime;
             String dicomId = "dicomId";
             String[] args = new String[] { processID, dicomId };
-            byte[] response = PatientManagerContract.submitTransaction("createDICOM", args);
+            byte[] response = PatientManagerContract.submitTransaction("alreadyaDICOM", args);
             String responseString = new String(response);
             assertThat(responseString).isEqualTo("The DICOM " + processID + " already exists");
         }
@@ -280,7 +281,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
         String dicomId = "dicomId";
         String PatientID = "PatientID";
         String[] args = new String[] { processID, dicomId, PatientID };
-        byte[] response = PatientManagerContract.evaluateTransaction("readObject", args);
+        byte[] response = PatientManagerContract.evaluateTransaction("readDICOM", args);
         String responseString = new String(response);
         System.out.println(responseString);
         assertThat(responseString).contains("INITIATED");
@@ -292,7 +293,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
         String dicomId = "dicomId";
         String PatientID = "PatientID";
         String[] args = new String[] { processID, dicomId, PatientID };
-        byte[] response = PatientManagerContract.evaluateTransaction("readObject", args);
+        byte[] response = PatientManagerContract.evaluateTransaction("readDICOMfailed", args);
         String responseString = new String(response);
         assertThat(responseString).contains("Invalid user type: doctor");
     }
@@ -316,7 +317,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
                 String ExtraNotes = "ExtraNotes";
                 String HospitalUID = "HospitalUID";
                 String[] args = new String[] { processID, dicomId, Filename, FileDateTime, PatientID, PatientName, PatientAge, PatientGender, PatientWeight, HeartRate, Modality, StudyDescription, AnatomyPlane, ExtraNotes, HospitalUID };
-                byte[] response = PatientManagerContract.submitTransaction("createDICOM", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
+                byte[] response = PatientManagerContract.submitTransaction("updateDICOM", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
                 String responseString = new String(response);
                 assertThat(responseString).isEqualTo("DICOM updated"); // se ritorna true il test sarà positivo
         }
