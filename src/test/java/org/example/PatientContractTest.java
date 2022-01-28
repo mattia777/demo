@@ -15,7 +15,6 @@ package org.example;
 //import org.hyperledger.fabric.shim.ChaincodeStub;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
 //import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,7 +23,6 @@ import java.time.*;
 //import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
-
 //import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.hyperledger.fabric.gateway.Contract;
 import org.hyperledger.fabric.gateway.ContractEvent;
@@ -32,7 +30,6 @@ import org.hyperledger.fabric.gateway.ContractException;
 import org.hyperledger.fabric.gateway.Gateway;
 import org.hyperledger.fabric.gateway.Network;
 import org.hyperledger.fabric.gateway.Wallet;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +38,6 @@ import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;
 //import org.junit.jupiter.api.TestMethodOrder;
 //import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 //import static org.junit.jupiter.api.Assertions.fail;
@@ -56,9 +52,9 @@ import static org.assertj.core.api.Assertions.assertThatCode;
     String homedir = System.getProperty("C:\\Users\\scard");
     Path walletPath1 = Paths.get("C:\\Users\\scard\\fabric-vscode\\v2\\environments\\1 Org Local Fabric\\wallets\\Org1"); // Load an existing wallet holding identities used to access the network.
     Path connectionProfilePath = Paths.get("C:\\Users\\scard\\.fabric-vscode\\v2\\environments\\1 Org Local Fabric\\gateways\\Org1 Gateway.json"); // Path to a common connection profile describing the network.
-    String patient = "patient";
+    String admin = "admin";
     String doctor = "doctor";
-    String DICOM = "DICOM";
+    String patient = "patient";
     boolean isLocalhostURL = JavaSmartContractUtil.hasLocalhostURLs(connectionProfilePath);
     static String currTime;
     static Consumer<ContractEvent> eventListener = a -> System.out.println(a.getName() + new String(a.getPayload().get())); // legge gli eventi che sono emessi dalla blockchain e li stampa a schermo
@@ -90,10 +86,10 @@ import static org.assertj.core.api.Assertions.assertThatCode;
             PatientManagerContract = network2.getContract("doctorProcess", "doctorContract");
 
             builder3 = Gateway.createBuilder();
-            builder3.identity(fabricWallet, DICOM).networkConfig(connectionProfilePath).discovery(true);
+            builder3.identity(fabricWallet, admin).networkConfig(connectionProfilePath).discovery(true);
             gateway3 = builder3.connect();
             network3 = gateway3.getNetwork("mychannel");
-            PatientManagerContract = network3.getContract("DICOMProcess", "DICOMContract");
+            PatientManagerContract = network3.getContract("adminProcess", "adminContract");
             
             PatientManagerContract.addContractListener(eventListener);
 
@@ -115,86 +111,43 @@ import static org.assertj.core.api.Assertions.assertThatCode;
         @Test
         public void newPatientCreate() throws ContractException, TimeoutException, InterruptedException {
             String processID = "test new patient" + currTime;
-            String patient = "patient";
-            String datasetID = "sampleDataset";
-            String[] args = new String[] { processID, patient, datasetID };
+            String patientId = "patientId";
+            String name = "name"; // <<<
+            String surname = "surname"; // <<<
+            String gender = "gender"; // <<<
+            String age = "age"; // <<<
+            String[] args = new String[] { processID, patientId, name, surname, gender, age }; // <<<
             byte[] response = PatientManagerContract.submitTransaction("createpatient", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
             String responseString = new String(response);
             assertThat(responseString).isEqualTo("Patient created"); // se ritorna true il test sarà positivo
         }
-            /*
-            PatientContract contract = new  PatientContract();
-            Context ctx = mock(Context.class);
-            ChaincodeStub stub = mock(ChaincodeStub.class);
-            when(ctx.getStub()).thenReturn(stub);
-            String json = "{\"value\":\"ThePatient\"}";
-            contract.createPatient(ctx, "10001", "Name", "Surname", "Gender", "Age");
-            verify(stub).putState("patientId", json.getBytes(UTF_8));
-            String[] args = new String[]{"patientId", "Name", "Surname", "Gender", "Age"};
-            byte[] response = PatientManagerContract.submitTransaction("createPatient", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
-            String responseString = new String(response);
-            assertThat(responseString).isEqualTo("Patient created"); // se ritorna true il test sarà positivo
-            */
-
+           
         @Test
         public void PatientalreadyExists() throws ContractException, TimeoutException, InterruptedException {
             String processID = "test patient already exists" + currTime;
-            String patient = "patient";
-            String datasetID = "sampleDataset";
-            String[] args = new String[] { processID, patient, datasetID };
+            String patientId = "patientId"; // <<<
+            String[] args = new String[] { processID, patientId }; // <<<
             byte[] response = PatientManagerContract.submitTransaction("createpatient", args);
             String responseString = new String(response);
             assertThat(responseString).isEqualTo("The Patient " + processID + " already exists");
         }
-            /*
-            PatientContract contract = new  PatientContract();
-            Context ctx = mock(Context.class);
-            ChaincodeStub stub = mock(ChaincodeStub.class);
-            when(ctx.getStub()).thenReturn(stub);
-            when(stub.getState("patientId")).thenReturn(new byte[] { 42 });
-            Exception thrown = assertThrows(RuntimeException.class, () -> {contract.createPatient(ctx, "patientId", "Name", "Surname", "Gender", "Age");});
-            assertEquals(thrown.getMessage(), "Patient already exists");
-            String[] args = new String[]{"ctx", "patientId"};
-            byte[] response = PatientManagerContract.evaluateTransaction("patientExists", args); //se è una transizione di lettura
-            String responseString = new String(response);
-            assertThat(responseString).isEqualTo("Patient NOT created"); // se ritorna true il test sarà positivo
-            */ 
 
     @Test
     public void PatientRead() throws ContractException, TimeoutException, InterruptedException {
         String processID = "test read patient" + currTime;
-        String className = "patientProcess";
-        String[] args = new String[] { processID, className };
+        String patientId = "patientId"; // <<<
+        String[] args = new String[] { processID, patientId}; // <<<
         byte[] response = PatientManagerContract.evaluateTransaction("readObject", args);
         String responseString = new String(response);
         System.out.println(responseString);
         assertThat(responseString).contains("INITIATED");
     }
-        /*
-        PatientContract contract = new PatientContract();
-        Context ctx = mock(Context.class);
-        ChaincodeStub stub = mock(ChaincodeStub.class);
-        when(ctx.getStub()).thenReturn(stub);
-        Patient asset = new  Patient();
-        asset.setName("name");
-        asset.setSurname("surname");
-        asset.setGender("gender");
-        asset.setAge("age");
-        String json = asset.toJSONString();
-        when(stub.getState("patientId")).thenReturn(json.getBytes(StandardCharsets.UTF_8));
-        Patient returnedAsset = contract.readPatient(ctx, "patientId");
-        assertEquals(returnedAsset.getName(), asset.getName());
-        String[] args = new String[]{"ctx", "patientId"};
-        byte[] response = PatientManagerContract.evaluateTransaction("readPatient", args); //se è una transizione di lettura
-        String responseString = new String(response);
-        assertThat(responseString).isEqualTo("Reading info of patient"); // se ritorna true il test sarà positivo
-        */
 
     @Test
-    public void PatientReadFail() throws ContractException, TimeoutException, InterruptedException {
-        String processID = "test of failure patient read, user type invalid" + currTime;
-        String className = "patientProcess";
-        String[] args = new String[] { processID, className };
+    public void PatientReadFail() throws ContractException, TimeoutException, InterruptedException { // ???
+        String processID = "test failure patient read / user type invalid" + currTime;
+        String patientId = "patientId"; // <<<
+        String[] args = new String[] { processID, patientId }; // <<<
         byte[] response = PatientManagerContract.evaluateTransaction("readObject", args);
         String responseString = new String(response);
         assertThat(responseString).contains("Invalid user type: patient");
@@ -204,21 +157,17 @@ import static org.assertj.core.api.Assertions.assertThatCode;
     class PatientUpdates {
         @Test
         public void PatientUpdateExisting() throws ContractException, TimeoutException, InterruptedException {
-        }
-            /*
-            PatientContract contract = new  PatientContract();
-            Context ctx = mock(Context.class);
-            ChaincodeStub stub = mock(ChaincodeStub.class);
-            when(ctx.getStub()).thenReturn(stub);
-            when(stub.getState("patientId")).thenReturn(new byte[] { 42 });
-            contract.updatePatient(ctx, "patientId", "updates", "NameSurname", "Gender", "Age");
-            String json = "{\"value\":\"updates\"}";
-            verify(stub).putState("patientId", json.getBytes(UTF_8));
-            String[] args = new String[]{"ctx", "patientId", "updates", "NameSurname", "Gender", "Age"};
-            byte[] response = PatientManagerContract.submitTransaction("updatePatient", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
+            String processID = "test update patient" + currTime;
+            String patientId = "patientId";
+            String name = "name"; // <<<
+            String surname = "surname"; // <<<
+            String gender = "gender"; // <<<
+            String age = "age"; // <<<
+            String[] args = new String[] { processID, patientId, name, surname, gender, age }; // <<<
+            byte[] response = PatientManagerContract.submitTransaction("updatepatient", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
             String responseString = new String(response);
-            assertThat(responseString).isEqualTo("updated@"); // se ritorna true il test sarà positivo
-            */
+            assertThat(responseString).isEqualTo("Patient updated"); // se ritorna true il test sarà positivo
+        }
 }
 
 /** DOCTOR UNIT TEST */
@@ -229,86 +178,42 @@ import static org.assertj.core.api.Assertions.assertThatCode;
         @Test
         public void newDoctorCreate() throws ContractException, TimeoutException, InterruptedException {
             String processID = "test new doctor" + currTime;
-            String doctor = "doctor";
-            String datasetID = "sampleDataset";
-            String[] args = new String[] { processID, doctor, datasetID };
+            String doctorId = "doctorId";
+            String name = "doctorname";
+            String surname = "doctorsurnmae";
+            String hospital = "hospital";
+            String[] args = new String[] { processID, doctorId, name, surname, hospital };
             byte[] response = PatientManagerContract.submitTransaction("createdoctor", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
             String responseString = new String(response);
             assertThat(responseString).isEqualTo("Doctor created"); // se ritorna true il test sarà positivo
         }
-            /*
-            PatientContract contract = new  PatientContract();
-            Context ctx = mock(Context.class);
-            ChaincodeStub stub = mock(ChaincodeStub.class);
-            when(ctx.getStub()).thenReturn(stub);
-            String json = "{\"value\":\"TheDoctor\"}";
-            contract.createDoctor(ctx, "doctorId", "Name", "Surname", "Hospital");
-            verify(stub).putState("doctorId", json.getBytes(UTF_8));
-            String[] args = new String[]{"ctx", "doctorId", "Name", "Surname", "Hospital"};
-            byte[] response = PatientManagerContract.submitTransaction("createDoctor", args);
-            String responseString = new String(response);
-            assertThat(responseString).isEqualTo("Doctor created");
-            */
 
         @Test
         public void DoctoralreadyExists() throws ContractException, TimeoutException, InterruptedException {
             String processID = "test doctor already exists" + currTime;
-            String doctor = "doctor";
-            String datasetID = "sampleDataset";
-            String[] args = new String[] { processID, doctor, datasetID };
+            String doctorId = "doctorId";
+            String[] args = new String[] { processID, doctorId };
             byte[] response = PatientManagerContract.submitTransaction("createdoctor", args);
             String responseString = new String(response);
             assertThat(responseString).isEqualTo("The Doctor " + processID + " already exists");
         }
-            /*
-            PatientContract contract = new  PatientContract();
-            Context ctx = mock(Context.class);
-            ChaincodeStub stub = mock(ChaincodeStub.class);
-            when(ctx.getStub()).thenReturn(stub);
-            when(stub.getState("doctorId")).thenReturn(new byte[] { 42 });
-            Exception thrown = assertThrows(RuntimeException.class, () -> {contract.doctorExists(ctx, "doctorId");
-            });
-            assertEquals(thrown.getMessage(), "Doctor already exists");
-            String[] args = new String[]{"ctx", "doctorId"};
-            byte[] response = PatientManagerContract.evaluateTransaction("doctorExists", args);
-            String responseString = new String(response);
-            assertThat(responseString).isEqualTo("The Doctor already exists");
-            */
 
     @Test
     public void DoctorRead() throws ContractException, TimeoutException, InterruptedException {
         String processID = "test read doctor" + currTime;
-        String className = "doctorProcess";
-        String[] args = new String[] { processID, className };
+        String doctorId = "doctorId";
+        String[] args = new String[] { processID, doctorId };
         byte[] response = PatientManagerContract.evaluateTransaction("readObject", args);
         String responseString = new String(response);
         System.out.println(responseString);
         assertThat(responseString).contains("INITIATED");
     }
-        /*
-        PatientContract contract = new PatientContract();
-        Context ctx = mock(Context.class);
-        ChaincodeStub stub = mock(ChaincodeStub.class);
-        when(ctx.getStub()).thenReturn(stub);
-        Doctor asset = new Doctor();
-        asset.setName("name");
-        asset.setSurname("surname");
-        asset.setHospital("hospital");
-        String json = asset.toJSONString();
-        when(stub.getState("doctorId")).thenReturn(json.getBytes(StandardCharsets.UTF_8));
-        Doctor returnedAsset = contract.readDoctor(ctx, "doctorId");
-        assertEquals(returnedAsset.getName(), asset.getName());
-        String[] args = new String[]{"ctx", "doctorId"};
-        byte[] response = PatientManagerContract.evaluateTransaction("readDoctor", args);
-        String responseString = new String(response);
-        assertThat(responseString).isEqualTo("Reading info of Doctor");
-        */
 
     @Test
     public void DoctorReadFail() throws ContractException, TimeoutException, InterruptedException {
         String processID = "test of failure Doctor read, user type invalid" + currTime;
-        String className = "doctorProcess";
-        String[] args = new String[] { processID, className };
+        String doctorId = "doctorId";
+        String[] args = new String[] { processID, doctorId };
         byte[] response = PatientManagerContract.evaluateTransaction("readObject", args);
         String responseString = new String(response);
         assertThat(responseString).contains("Invalid user type: doctor");
@@ -318,21 +223,16 @@ import static org.assertj.core.api.Assertions.assertThatCode;
     class DoctorUpdates {
         @Test
         public void DoctorupdateExisting() throws ContractException, TimeoutException, InterruptedException {
-        }
-            /*
-            PatientContract contract = new  PatientContract();
-            Context ctx = mock(Context.class);
-            ChaincodeStub stub = mock(ChaincodeStub.class);
-            when(ctx.getStub()).thenReturn(stub);
-            when(stub.getState("doctorId")).thenReturn(new byte[] { 42 });
-            contract.updateDoctor(ctx, "doctorId", "Name", "Surname", "Hospital");
-            String json = "{\"value\":\"updates\"}";
-            verify(stub).putState("doctorId", json.getBytes(UTF_8));
-            String[] args = new String[]{"ctx", "doctorId", "Name", "Surname", "Hospital"};
-            byte[] response = PatientManagerContract.submitTransaction("updateDoctor", args);
+            String processID = "test update doctor" + currTime;
+            String doctorId = "doctorId";
+            String name = "doctorname";
+            String surname = "doctorsurnmae";
+            String hospital = "hospital";
+            String[] args = new String[] { processID, doctorId, name, surname, hospital };
+            byte[] response = PatientManagerContract.submitTransaction("createdoctor", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
             String responseString = new String(response);
-            assertThat(responseString).isEqualTo("updated@");
-            */
+            assertThat(responseString).isEqualTo("Doctor updated"); // se ritorna true il test sarà positivo
+        }
     }
 }
 
@@ -344,158 +244,264 @@ import static org.assertj.core.api.Assertions.assertThatCode;
         @Test
         public void newDICOMCreate() throws ContractException, TimeoutException, InterruptedException {
                 String processID = "test new DICOM" + currTime;
-                String DICOM = "DICOM";
-                String datasetID = "sampleDataset";
-                String[] args = new String[] { processID, DICOM, datasetID };
+                String dicomId = "dicomId";
+                String Filename = "Filename";
+                String FileDateTime = "FileDateTime";
+                String PatientID = "PatientID";
+                String PatientName = "PatientName";
+                String PatientAge = "PatientAge";
+                String PatientGender = "PatientGender";
+                String PatientWeight = "PatientWeight";
+                String HeartRate = "HeartRate";
+                String Modality = "Modality";
+                String StudyDescription = "StudyDescription";
+                String AnatomyPlane = "AnatomyPlane";
+                String ExtraNotes = "ExtraNotes";
+                String HospitalUID = "HospitalUID";
+                String[] args = new String[] { processID, dicomId, Filename, FileDateTime, PatientID, PatientName, PatientAge, PatientGender, PatientWeight, HeartRate, Modality, StudyDescription, AnatomyPlane, ExtraNotes, HospitalUID };
                 byte[] response = PatientManagerContract.submitTransaction("createDICOM", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
                 String responseString = new String(response);
                 assertThat(responseString).isEqualTo("DICOM created"); // se ritorna true il test sarà positivo
         }
-            /*
-            PatientContract contract = new  PatientContract();
-            Context ctx = mock(Context.class);
-            ChaincodeStub stub = mock(ChaincodeStub.class);
-            when(ctx.getStub()).thenReturn(stub);
-            String json = "{\"value\":\"TheDICOM\"}";
-            contract.createDICOM(ctx, "dicomId", "Filename", "FileDateTime", "PatientID", "PatientName", "PatientAge", "PatientGender", "PatientWeight", "HeartRate", "Modality", "StudyDescription", "AnatomyPlane", "ExtraNotes", "HospitalUID");
-            verify(stub).putState("dicomId", json.getBytes(UTF_8));
-            String[] args = new String[]{"ctx", "dicomId", "Filename", "FileDateTime", "PatientID", "PatientName", "PatientAge", "PatientGender", "PatientWeight", "HeartRate", "Modality", "StudyDescription", "AnatomyPlane", "ExtraNotes", "HospitalUID"};
-            byte[] response = PatientManagerContract.submitTransaction("createDICOM", args);
-            String responseString = new String(response);
-            assertThat(responseString).isEqualTo("DICOM created");
-            */
 
         @Test
         public void DICOMalreadyExists() throws ContractException, TimeoutException, InterruptedException {
             String processID = "test DICOM already exists" + currTime;
-            String DICOM = "DICOM";
-            String datasetID = "sampleDataset";
-            String[] args = new String[] { processID, DICOM, datasetID };
+            String dicomId = "dicomId";
+            String[] args = new String[] { processID, dicomId };
             byte[] response = PatientManagerContract.submitTransaction("createDICOM", args);
             String responseString = new String(response);
             assertThat(responseString).isEqualTo("The DICOM " + processID + " already exists");
         }
-            /*
-            PatientContract contract = new  PatientContract();
-            Context ctx = mock(Context.class);
-            ChaincodeStub stub = mock(ChaincodeStub.class);
-            when(ctx.getStub()).thenReturn(stub);
-            when(stub.getState("dicomId")).thenReturn(new byte[] { 42 });
-            Exception thrown = assertThrows(RuntimeException.class, () -> {contract.createDICOM(ctx, "dicomId", "Filename", "FileDateTime", "PatientID", "PatientName", "PatientAge", "PatientGender", "PatientWeight", "HeartRate", "Modality", "StudyDescription", "AnatomyPlane", "ExtraNotes", "HospitalUID");
-            });
-            assertEquals(thrown.getMessage(), "DICOM already exists");
-            String[] args = new String[]{"ctx", "dicomId"};
-            byte[] response = PatientManagerContract.evaluateTransaction("dicomExists", args);
-            String responseString = new String(response);
-            assertThat(responseString).isEqualTo("The DICOM already exists");
-            */
 
     @Test
     public void DICOMRead() throws ContractException, TimeoutException, InterruptedException {
         String processID = "test read DICOM" + currTime;
-        String className = "DICOMProcess";
-        String[] args = new String[] { processID, className };
+        String dicomId = "dicomId";
+        String PatientID = "PatientID";
+        String[] args = new String[] { processID, dicomId, PatientID };
         byte[] response = PatientManagerContract.evaluateTransaction("readObject", args);
         String responseString = new String(response);
         System.out.println(responseString);
         assertThat(responseString).contains("INITIATED");
     }
-        /*
-        PatientContract contract = new PatientContract();
-        Context ctx = mock(Context.class);
-        ChaincodeStub stub = mock(ChaincodeStub.class);
-        when(ctx.getStub()).thenReturn(stub);
-        DICOM asset = new DICOM();
-        asset.setFilename("Filename");
-        asset.setFileDateTime("FileDateTime");
-        asset.setPatientID("PatientID");
-        asset.setPatientName("PatientName");
-        asset.setPatientAge("PatientAge");
-        asset.setPatientGender("PatientGender"); 
-        asset.setPatientWeight("PatientWeight");
-        asset.setHeartRate("HeartRate");
-        asset.setModality("Modality");
-        asset.setStudyDescription("StudyDescription");
-        asset.setAnatomyPlane("AnatomyPlane");
-        asset.setExtraNotes("ExtraNotes");
-        asset.setHospitalUID("HospitalUID");
-        String json = asset.toJSONString();
-        when(stub.getState("dicomId")).thenReturn(json.getBytes(StandardCharsets.UTF_8));
-        DICOM returnedAsset = contract.readDICOM(ctx, "dicomId", "PatientID");
-        assertEquals(returnedAsset.getFilename(), asset.getFilename());
-        String[] args = new String[]{"ctx", "dicomId", "PatientID"};
-        byte[] response = PatientManagerContract.evaluateTransaction("readDICOM", args);
-        String responseString = new String(response);
-        assertThat(responseString).isEqualTo("Reading info of DICOM");
-        */
 
     @Test
     public void DICOMReadFail() throws ContractException, TimeoutException, InterruptedException {
         String processID = "test of failure DICOM read, user type invalid" + currTime;
-        String className = "DICOMProcess";
-        String[] args = new String[] { processID, className };
+        String dicomId = "dicomId";
+        String PatientID = "PatientID";
+        String[] args = new String[] { processID, dicomId, PatientID };
         byte[] response = PatientManagerContract.evaluateTransaction("readObject", args);
         String responseString = new String(response);
         assertThat(responseString).contains("Invalid user type: doctor");
     }
-
     @Nested
     class DICOMUpdates {
         @Test
         public void DICOMupdateExisting() throws ContractException, TimeoutException, InterruptedException {
+            String processID = "test new DICOM" + currTime;
+                String dicomId = "dicomId";
+                String Filename = "Filename";
+                String FileDateTime = "FileDateTime";
+                String PatientID = "PatientID";
+                String PatientName = "PatientName";
+                String PatientAge = "PatientAge";
+                String PatientGender = "PatientGender";
+                String PatientWeight = "PatientWeight";
+                String HeartRate = "HeartRate";
+                String Modality = "Modality";
+                String StudyDescription = "StudyDescription";
+                String AnatomyPlane = "AnatomyPlane";
+                String ExtraNotes = "ExtraNotes";
+                String HospitalUID = "HospitalUID";
+                String[] args = new String[] { processID, dicomId, Filename, FileDateTime, PatientID, PatientName, PatientAge, PatientGender, PatientWeight, HeartRate, Modality, StudyDescription, AnatomyPlane, ExtraNotes, HospitalUID };
+                byte[] response = PatientManagerContract.submitTransaction("createDICOM", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
+                String responseString = new String(response);
+                assertThat(responseString).isEqualTo("DICOM updated"); // se ritorna true il test sarà positivo
         }
-            /*
-            PatientContract contract = new  PatientContract();
-            Context ctx = mock(Context.class);
-            ChaincodeStub stub = mock(ChaincodeStub.class);
-            when(ctx.getStub()).thenReturn(stub);
-            when(stub.getState("dicomId")).thenReturn(new byte[] { 42 });
-            contract.updateDICOM(ctx, "dicomId", "Filename", "FileDateTime", "PatientID", "PatientName", "PatientAge", "PatientGender", "PatientWeight", "HeartRate", "Modality", "StudyDescription", "AnatomyPlane", "ExtraNotes", "HospitalUID");
-            String json = "{\"value\":\"updates\"}";
-            verify(stub).putState("dicomId", json.getBytes(UTF_8));
-            String[] args = new String[]{"ctx", "dicomId", "Filename", "FileDateTime", "PatientID", "PatientName", "PatientAge", "PatientGender", "PatientWeight", "HeartRate", "Modality", "StudyDescription", "AnatomyPlane", "ExtraNotes", "HospitalUID"};
-            byte[] response = PatientManagerContract.submitTransaction("updateDICOM", args);
-            String responseString = new String(response);
-            assertThat(responseString).isEqualTo("updated@");
-            */
     
     }
 }
 }
 }
 
+/*
+PatientContract contract = new  PatientContract();
+Context ctx = mock(Context.class);
+ChaincodeStub stub = mock(ChaincodeStub.class);
+when(ctx.getStub()).thenReturn(stub);
+String json = "{\"value\":\"ThePatient\"}";
+contract.createPatient(ctx, "10001", "Name", "Surname", "Gender", "Age");
+verify(stub).putState("patientId", json.getBytes(UTF_8));
+String[] args = new String[]{"patientId", "Name", "Surname", "Gender", "Age"};
+byte[] response = PatientManagerContract.submitTransaction("createPatient", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
+String responseString = new String(response);
+assertThat(responseString).isEqualTo("Patient created"); // se ritorna true il test sarà positivo
 
+PatientContract contract = new  PatientContract();
+Context ctx = mock(Context.class);
+ChaincodeStub stub = mock(ChaincodeStub.class);
+when(ctx.getStub()).thenReturn(stub);
+when(stub.getState("patientId")).thenReturn(new byte[] { 42 });
+Exception thrown = assertThrows(RuntimeException.class, () -> {contract.createPatient(ctx, "patientId", "Name", "Surname", "Gender", "Age");});
+assertEquals(thrown.getMessage(), "Patient already exists");
+String[] args = new String[]{"ctx", "patientId"};
+byte[] response = PatientManagerContract.evaluateTransaction("patientExists", args); //se è una transizione di lettura
+String responseString = new String(response);
+assertThat(responseString).isEqualTo("Patient NOT created"); // se ritorna true il test sarà positivo
 
+PatientContract contract = new PatientContract();
+Context ctx = mock(Context.class);
+ChaincodeStub stub = mock(ChaincodeStub.class);
+when(ctx.getStub()).thenReturn(stub);
+Patient asset = new  Patient();
+asset.setName("name");
+asset.setSurname("surname");
+asset.setGender("gender");
+asset.setAge("age");
+String json = asset.toJSONString();
+when(stub.getState("patientId")).thenReturn(json.getBytes(StandardCharsets.UTF_8));
+Patient returnedAsset = contract.readPatient(ctx, "patientId");
+assertEquals(returnedAsset.getName(), asset.getName());
+String[] args = new String[]{"ctx", "patientId"};
+byte[] response = PatientManagerContract.evaluateTransaction("readPatient", args); //se è una transizione di lettura
+String responseString = new String(response);
+assertThat(responseString).isEqualTo("Reading info of patient"); // se ritorna true il test sarà positivo
 
+PatientContract contract = new  PatientContract();
+Context ctx = mock(Context.class);
+ChaincodeStub stub = mock(ChaincodeStub.class);
+when(ctx.getStub()).thenReturn(stub);
+when(stub.getState("patientId")).thenReturn(new byte[] { 42 });
+contract.updatePatient(ctx, "patientId", "updates", "NameSurname", "Gender", "Age");
+String json = "{\"value\":\"updates\"}";
+verify(stub).putState("patientId", json.getBytes(UTF_8));
+String[] args = new String[]{"ctx", "patientId", "updates", "NameSurname", "Gender", "Age"};
+byte[] response = PatientManagerContract.submitTransaction("updatePatient", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
+String responseString = new String(response);
+assertThat(responseString).isEqualTo("updated@"); // se ritorna true il test sarà positivo
 
+PatientContract contract = new  PatientContract();
+Context ctx = mock(Context.class);
+ChaincodeStub stub = mock(ChaincodeStub.class);
+when(ctx.getStub()).thenReturn(stub);
+String json = "{\"value\":\"TheDoctor\"}";
+contract.createDoctor(ctx, "doctorId", "Name", "Surname", "Hospital");
+verify(stub).putState("doctorId", json.getBytes(UTF_8));
+String[] args = new String[]{"ctx", "doctorId", "Name", "Surname", "Hospital"};
+byte[] response = PatientManagerContract.submitTransaction("createDoctor", args);
+String responseString = new String(response);
+assertThat(responseString).isEqualTo("Doctor created");
 
+PatientContract contract = new  PatientContract();
+Context ctx = mock(Context.class);
+ChaincodeStub stub = mock(ChaincodeStub.class);
+when(ctx.getStub()).thenReturn(stub);
+when(stub.getState("doctorId")).thenReturn(new byte[] { 42 });
+Exception thrown = assertThrows(RuntimeException.class, () -> {contract.doctorExists(ctx, "doctorId");
+});
+assertEquals(thrown.getMessage(), "Doctor already exists");
+String[] args = new String[]{"ctx", "doctorId"};
+byte[] response = PatientManagerContract.evaluateTransaction("doctorExists", args);
+String responseString = new String(response);
+assertThat(responseString).isEqualTo("The Doctor already exists");
 
+PatientContract contract = new PatientContract();
+Context ctx = mock(Context.class);
+ChaincodeStub stub = mock(ChaincodeStub.class);
+when(ctx.getStub()).thenReturn(stub);
+Doctor asset = new Doctor();
+asset.setName("name");
+asset.setSurname("surname");
+asset.setHospital("hospital");
+String json = asset.toJSONString();
+when(stub.getState("doctorId")).thenReturn(json.getBytes(StandardCharsets.UTF_8));
+Doctor returnedAsset = contract.readDoctor(ctx, "doctorId");
+assertEquals(returnedAsset.getName(), asset.getName());
+String[] args = new String[]{"ctx", "doctorId"};
+byte[] response = PatientManagerContract.evaluateTransaction("readDoctor", args);
+String responseString = new String(response);
+assertThat(responseString).isEqualTo("Reading info of Doctor");
 
+PatientContract contract = new  PatientContract();
+Context ctx = mock(Context.class);
+ChaincodeStub stub = mock(ChaincodeStub.class);
+when(ctx.getStub()).thenReturn(stub);
+when(stub.getState("doctorId")).thenReturn(new byte[] { 42 });
+contract.updateDoctor(ctx, "doctorId", "Name", "Surname", "Hospital");
+String json = "{\"value\":\"updates\"}";
+verify(stub).putState("doctorId", json.getBytes(UTF_8));
+String[] args = new String[]{"ctx", "doctorId", "Name", "Surname", "Hospital"};
+byte[] response = PatientManagerContract.submitTransaction("updateDoctor", args);
+String responseString = new String(response);
+assertThat(responseString).isEqualTo("updated@");
 
+PatientContract contract = new  PatientContract();
+Context ctx = mock(Context.class);
+ChaincodeStub stub = mock(ChaincodeStub.class);
+when(ctx.getStub()).thenReturn(stub);
+String json = "{\"value\":\"TheDICOM\"}";
+contract.createDICOM(ctx, "dicomId", "Filename", "FileDateTime", "PatientID", "PatientName", "PatientAge", "PatientGender", "PatientWeight", "HeartRate", "Modality", "StudyDescription", "AnatomyPlane", "ExtraNotes", "HospitalUID");
+verify(stub).putState("dicomId", json.getBytes(UTF_8));
+String[] args = new String[]{"ctx", "dicomId", "Filename", "FileDateTime", "PatientID", "PatientName", "PatientAge", "PatientGender", "PatientWeight", "HeartRate", "Modality", "StudyDescription", "AnatomyPlane", "ExtraNotes", "HospitalUID"};
+byte[] response = PatientManagerContract.submitTransaction("createDICOM", args);
+String responseString = new String(response);
+assertThat(responseString).isEqualTo("DICOM created");
+ 
+PatientContract contract = new  PatientContract();
+Context ctx = mock(Context.class);
+ChaincodeStub stub = mock(ChaincodeStub.class);
+when(ctx.getStub()).thenReturn(stub);
+when(stub.getState("dicomId")).thenReturn(new byte[] { 42 });
+Exception thrown = assertThrows(RuntimeException.class, () -> {contract.createDICOM(ctx, "dicomId", "Filename", "FileDateTime", "PatientID", "PatientName", "PatientAge", "PatientGender", "PatientWeight", "HeartRate", "Modality", "StudyDescription", "AnatomyPlane", "ExtraNotes", "HospitalUID");
+});
+assertEquals(thrown.getMessage(), "DICOM already exists");
+String[] args = new String[]{"ctx", "dicomId"};
+byte[] response = PatientManagerContract.evaluateTransaction("dicomExists", args);
+String responseString = new String(response);
+assertThat(responseString).isEqualTo("The DICOM already exists");
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+PatientContract contract = new PatientContract();
+Context ctx = mock(Context.class);
+ChaincodeStub stub = mock(ChaincodeStub.class);
+when(ctx.getStub()).thenReturn(stub);
+DICOM asset = new DICOM();
+asset.setFilename("Filename");
+asset.setFileDateTime("FileDateTime");
+asset.setPatientID("PatientID");
+asset.setPatientName("PatientName");
+asset.setPatientAge("PatientAge");
+asset.setPatientGender("PatientGender"); 
+asset.setPatientWeight("PatientWeight");
+asset.setHeartRate("HeartRate");
+asset.setModality("Modality");
+asset.setStudyDescription("StudyDescription");
+asset.setAnatomyPlane("AnatomyPlane");
+asset.setExtraNotes("ExtraNotes");
+asset.setHospitalUID("HospitalUID");
+String json = asset.toJSONString();
+when(stub.getState("dicomId")).thenReturn(json.getBytes(StandardCharsets.UTF_8));
+DICOM returnedAsset = contract.readDICOM(ctx, "dicomId", "PatientID");
+assertEquals(returnedAsset.getFilename(), asset.getFilename());
+String[] args = new String[]{"ctx", "dicomId", "PatientID"};
+byte[] response = PatientManagerContract.evaluateTransaction("readDICOM", args);
+String responseString = new String(response);
+assertThat(responseString).isEqualTo("Reading info of DICOM");
+        
+PatientContract contract = new  PatientContract();
+Context ctx = mock(Context.class);
+ChaincodeStub stub = mock(ChaincodeStub.class);
+when(ctx.getStub()).thenReturn(stub);
+when(stub.getState("dicomId")).thenReturn(new byte[] { 42 });
+contract.updateDICOM(ctx, "dicomId", "Filename", "FileDateTime", "PatientID", "PatientName", "PatientAge", "PatientGender", "PatientWeight", "HeartRate", "Modality", "StudyDescription", "AnatomyPlane", "ExtraNotes", "HospitalUID");
+String json = "{\"value\":\"updates\"}";
+verify(stub).putState("dicomId", json.getBytes(UTF_8));
+String[] args = new String[]{"ctx", "dicomId", "Filename", "FileDateTime", "PatientID", "PatientName", "PatientAge", "PatientGender", "PatientWeight", "HeartRate", "Modality", "StudyDescription", "AnatomyPlane", "ExtraNotes", "HospitalUID"};
+byte[] response = PatientManagerContract.submitTransaction("updateDICOM", args);
+String responseString = new String(response);
+assertThat(responseString).isEqualTo("updated@");
+*/
 
     /*
     @Nested

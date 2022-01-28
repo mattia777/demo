@@ -59,7 +59,7 @@ public class PatientContract implements ContractInterface {
         event.put("ID_Transaction", ctx.getStub().getTxId());
         event.put("CalledFnc", ctx.getStub().getFunction());
 
-        boolean exists = patientExists(ctx,patientId);
+        boolean exists = patientExists(ctx, patientId);
         if (exists) {
             ctx.getStub().setEvent("Patient "+patientId+" NOT created", event.toJSONString().getBytes(UTF_8));
             throw new RuntimeException("The "+patientId+" already exists");

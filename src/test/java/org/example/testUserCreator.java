@@ -34,11 +34,11 @@ public class testUserCreator {
         String homedir = System.getProperty("C:\\Users\\scard");
         static Path walletPath1 = Paths.get("C:\\Users\\scard\\fabric-vscode\\v2\\environments\\1 Org Local Fabric\\wallets\\Org1"); // Load an existing wallet holding identities used to access the network.
         static Path connectionProfilePath = Paths.get("C:\\Users\\scard\\.fabric-vscode\\v2\\environments\\1 Org Local Fabric\\gateways\\Org1 Gateway.json"); // Path to a common connection profile describing the network.        
-        String patient = "patient";
+        String admin = "admin";
         String doctor = "doctor";
-        String DICOM = "DICOM";
+        String patient = "patient";
         static boolean isLocalhostURL = JavaSmartContractUtil.hasLocalhostURLs(connectionProfilePath);
-        static String[][] userIDs = {{"patient01", "doctor01", "DICOM01", "patient02", "doctor02", "DICOM02"},{"patient", "doctor", "DICOM"}};
+        static String[][] userIDs = {{"patient01", "doctor01", "admin01"},{"patient02", "doctor02", "admin02"}};
 
         public static void main(String... args) throws Exception {
                 JavaSmartContractUtil.setDiscoverAsLocalHost(isLocalhostURL);
