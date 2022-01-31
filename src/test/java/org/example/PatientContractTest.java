@@ -111,63 +111,60 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
         @Test
         public void newPatientCreate() throws ContractException, TimeoutException, InterruptedException {
-            String processID = "test new patient" + currTime;
-            String patientId = "patientId";
-            String name = "name"; // <<<
-            String surname = "surname"; // <<<
-            String gender = "gender"; // <<<
-            String age = "age"; // <<<
-            String[] args = new String[] { processID, patientId, name, surname, gender, age }; // <<<
-            byte[] response = PatientManagerContract.submitTransaction("createpatient", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
+            String patientId = "patientId" + currTime;
+            String name = "name";
+            String surname = "surname";
+            String gender = "gender";
+            String age = "age";
+            String[] args = new String[] { patientId, name, surname, gender, age };
+            byte[] response = PatientManagerContract.submitTransaction("createPatient", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
             String responseString = new String(response);
-            assertThat(responseString).isEqualTo("Patient created"); // se ritorna true il test sarà positivo
+            assertThat(responseString).isEqualTo("Patient " + patientId + " created"); // se ritorna true il test sarà positivo
         }
            
         @Test
         public void PatientalreadyExists() throws ContractException, TimeoutException, InterruptedException {
-            String processID = "test patient already exists" + currTime;
-            String patientId = "patientId"; // <<<
-            String[] args = new String[] { processID, patientId }; // <<<
-            byte[] response = PatientManagerContract.submitTransaction("alreadyapatient", args);
+            String patientId = "patientId" + currTime;
+            String[] args = new String[] { patientId };
+            byte[] response = PatientManagerContract.submitTransaction("patientExists", args);
             String responseString = new String(response);
-            assertThat(responseString).isEqualTo("The Patient " + processID + " already exists");
+            assertThat(responseString).isEqualTo("The Patient " + patientId + " already exists");
         }
 
     @Test
     public void PatientRead() throws ContractException, TimeoutException, InterruptedException {
-        String processID = "test read patient" + currTime;
-        String patientId = "patientId"; // <<<
-        String[] args = new String[] { processID, patientId}; // <<<
-        byte[] response = PatientManagerContract.evaluateTransaction("readpatient", args);
+        String patientId = "patientId" + currTime;
+        String[] args = new String[] { patientId};
+        byte[] response = PatientManagerContract.evaluateTransaction("readPatient", args);
         String responseString = new String(response);
         System.out.println(responseString);
-        assertThat(responseString).contains("INITIATED");
+        assertThat(responseString).contains("reading patient" + patientId + "files");
     }
 
+    /*
     @Test
-    public void PatientReadFail() throws ContractException, TimeoutException, InterruptedException { // ???
-        String processID = "test failure patient read / user type invalid" + currTime;
-        String patientId = "patientId"; // <<<
-        String[] args = new String[] { processID, patientId }; // <<<
-        byte[] response = PatientManagerContract.evaluateTransaction("readpatientfailed", args);
+    public void PatientReadFail() throws ContractException, TimeoutException, InterruptedException {
+        String patientId = "patientId" + currTime;
+        String[] args = new String[] { processID, patientId };
+        byte[] response = PatientManagerContract.evaluateTransaction("readPatient", args);
         String responseString = new String(response);
         assertThat(responseString).contains("Invalid user type: patient");
     }
+    */
 
     @Nested
     class PatientUpdates {
         @Test
-        public void PatientUpdateExisting() throws ContractException, TimeoutException, InterruptedException {
-            String processID = "test update patient" + currTime;
-            String patientId = "patientId";
-            String name = "name"; // <<<
-            String surname = "surname"; // <<<
-            String gender = "gender"; // <<<
-            String age = "age"; // <<<
-            String[] args = new String[] { processID, patientId, name, surname, gender, age }; // <<<
-            byte[] response = PatientManagerContract.submitTransaction("updatepatient", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
+        public void UpdateExistingPatient() throws ContractException, TimeoutException, InterruptedException {
+            String patientId = "patientId" + currTime;
+            String name = "name";
+            String surname = "surname";
+            String gender = "gender";
+            String age = "age";
+            String[] args = new String[] { patientId, name, surname, gender, age };
+            byte[] response = PatientManagerContract.submitTransaction("updatePatient", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
             String responseString = new String(response);
-            assertThat(responseString).isEqualTo("Patient updated"); // se ritorna true il test sarà positivo
+            assertThat(responseString).isEqualTo("Patient" + patientId + "updated"); // se ritorna true il test sarà positivo
         }
 }
 
@@ -178,61 +175,57 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
         @Test
         public void newDoctorCreate() throws ContractException, TimeoutException, InterruptedException {
-            String processID = "test new doctor" + currTime;
-            String doctorId = "doctorId";
+            String doctorId = "doctorId" + currTime;
             String name = "doctorname";
             String surname = "doctorsurnmae";
             String hospital = "hospital";
-            String[] args = new String[] { processID, doctorId, name, surname, hospital };
-            byte[] response = PatientManagerContract.submitTransaction("createdoctor", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
+            String[] args = new String[] { doctorId, name, surname, hospital };
+            byte[] response = PatientManagerContract.submitTransaction("createDoctor", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
             String responseString = new String(response);
-            assertThat(responseString).isEqualTo("Doctor created"); // se ritorna true il test sarà positivo
+            assertThat(responseString).isEqualTo("Doctor" + doctorId + "created"); // se ritorna true il test sarà positivo
         }
 
         @Test
         public void DoctoralreadyExists() throws ContractException, TimeoutException, InterruptedException {
-            String processID = "test doctor already exists" + currTime;
-            String doctorId = "doctorId";
-            String[] args = new String[] { processID, doctorId };
-            byte[] response = PatientManagerContract.submitTransaction("alreadyadoctor", args);
+            String doctorId = "doctorId" + currTime;
+            String[] args = new String[] { doctorId };
+            byte[] response = PatientManagerContract.submitTransaction("doctorExists", args);
             String responseString = new String(response);
-            assertThat(responseString).isEqualTo("The Doctor " + processID + " already exists");
+            assertThat(responseString).isEqualTo("The Doctor " + doctorId + " already exists");
         }
 
     @Test
     public void DoctorRead() throws ContractException, TimeoutException, InterruptedException {
-        String processID = "test read doctor" + currTime;
-        String doctorId = "doctorId";
-        String[] args = new String[] { processID, doctorId };
-        byte[] response = PatientManagerContract.evaluateTransaction("readdoctor", args);
+        String doctorId = "doctorId" + currTime;
+        String[] args = new String[] { doctorId };
+        byte[] response = PatientManagerContract.evaluateTransaction("readDoctor", args);
         String responseString = new String(response);
         System.out.println(responseString);
-        assertThat(responseString).contains("INITIATED");
+        assertThat(responseString).contains("reading doctor " + doctorId + " files");
     }
-
+    /*
     @Test
     public void DoctorReadFail() throws ContractException, TimeoutException, InterruptedException {
-        String processID = "test of failure Doctor read, user type invalid" + currTime;
         String doctorId = "doctorId";
         String[] args = new String[] { processID, doctorId };
-        byte[] response = PatientManagerContract.evaluateTransaction("readdoctorfailed", args);
+        byte[] response = PatientManagerContract.evaluateTransaction("readDoctor", args);
         String responseString = new String(response);
         assertThat(responseString).contains("Invalid user type: doctor");
     }
+    */
 
     @Nested
     class DoctorUpdates {
         @Test
-        public void DoctorupdateExisting() throws ContractException, TimeoutException, InterruptedException {
-            String processID = "test update doctor" + currTime;
-            String doctorId = "doctorId";
+        public void updateExistingDoctor() throws ContractException, TimeoutException, InterruptedException {
+            String doctorId = "doctorId" + currTime;
             String name = "doctorname";
             String surname = "doctorsurnmae";
             String hospital = "hospital";
-            String[] args = new String[] { processID, doctorId, name, surname, hospital };
-            byte[] response = PatientManagerContract.submitTransaction("updatedoctor", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
+            String[] args = new String[] { doctorId, name, surname, hospital };
+            byte[] response = PatientManagerContract.submitTransaction("updateDoctor", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
             String responseString = new String(response);
-            assertThat(responseString).isEqualTo("Doctor updated"); // se ritorna true il test sarà positivo
+            assertThat(responseString).isEqualTo("Doctor " + doctorId + " updated"); // se ritorna true il test sarà positivo
         }
     }
 }
@@ -244,8 +237,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
         @Test
         public void newDICOMCreate() throws ContractException, TimeoutException, InterruptedException {
-                String processID = "test new DICOM" + currTime;
-                String dicomId = "dicomId";
+                String dicomId = "dicomId" + currTime;
                 String Filename = "Filename";
                 String FileDateTime = "FileDateTime";
                 String PatientID = "PatientID";
@@ -259,7 +251,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
                 String AnatomyPlane = "AnatomyPlane";
                 String ExtraNotes = "ExtraNotes";
                 String HospitalUID = "HospitalUID";
-                String[] args = new String[] { processID, dicomId, Filename, FileDateTime, PatientID, PatientName, PatientAge, PatientGender, PatientWeight, HeartRate, Modality, StudyDescription, AnatomyPlane, ExtraNotes, HospitalUID };
+                String[] args = new String[] { dicomId, Filename, FileDateTime, PatientID, PatientName, PatientAge, PatientGender, PatientWeight, HeartRate, Modality, StudyDescription, AnatomyPlane, ExtraNotes, HospitalUID };
                 byte[] response = PatientManagerContract.submitTransaction("createDICOM", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
                 String responseString = new String(response);
                 assertThat(responseString).isEqualTo("DICOM created"); // se ritorna true il test sarà positivo
@@ -267,42 +259,42 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
         @Test
         public void DICOMalreadyExists() throws ContractException, TimeoutException, InterruptedException {
-            String processID = "test DICOM already exists" + currTime;
-            String dicomId = "dicomId";
-            String[] args = new String[] { processID, dicomId };
-            byte[] response = PatientManagerContract.submitTransaction("alreadyaDICOM", args);
+            String dicomId = "dicomId" + currTime;
+            String[] args = new String[] { dicomId };
+            byte[] response = PatientManagerContract.submitTransaction("dicomExists", args);
             String responseString = new String(response);
-            assertThat(responseString).isEqualTo("The DICOM " + processID + " already exists");
+            assertThat(responseString).isEqualTo("The DICOM " + dicomId + " already exists");
         }
 
     @Test
     public void DICOMRead() throws ContractException, TimeoutException, InterruptedException {
-        String processID = "test read DICOM" + currTime;
-        String dicomId = "dicomId";
+        String dicomId = "dicomId" + currTime;
         String PatientID = "PatientID";
-        String[] args = new String[] { processID, dicomId, PatientID };
+        String[] args = new String[] { dicomId, PatientID };
         byte[] response = PatientManagerContract.evaluateTransaction("readDICOM", args);
         String responseString = new String(response);
         System.out.println(responseString);
-        assertThat(responseString).contains("INITIATED");
+        assertThat(responseString).contains("reading patient's "+ PatientID +" dicom " +dicomId);
     }
 
+    /*
     @Test
     public void DICOMReadFail() throws ContractException, TimeoutException, InterruptedException {
-        String processID = "test of failure DICOM read, user type invalid" + currTime;
-        String dicomId = "dicomId";
+        String dicomId = "dicomId" + currTime;
         String PatientID = "PatientID";
-        String[] args = new String[] { processID, dicomId, PatientID };
-        byte[] response = PatientManagerContract.evaluateTransaction("readDICOMfailed", args);
+        String[] args = new String[] { dicomId, PatientID };
+        byte[] response = PatientManagerContract.evaluateTransaction("readDICOM", args);
         String responseString = new String(response);
         assertThat(responseString).contains("Invalid user type: doctor");
     }
+    */
+
     @Nested
     class DICOMUpdates {
         @Test
         public void DICOMupdateExisting() throws ContractException, TimeoutException, InterruptedException {
-            String processID = "test new DICOM" + currTime;
-                String dicomId = "dicomId";
+
+                String dicomId = "dicomId" + currTime;
                 String Filename = "Filename";
                 String FileDateTime = "FileDateTime";
                 String PatientID = "PatientID";
@@ -316,7 +308,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
                 String AnatomyPlane = "AnatomyPlane";
                 String ExtraNotes = "ExtraNotes";
                 String HospitalUID = "HospitalUID";
-                String[] args = new String[] { processID, dicomId, Filename, FileDateTime, PatientID, PatientName, PatientAge, PatientGender, PatientWeight, HeartRate, Modality, StudyDescription, AnatomyPlane, ExtraNotes, HospitalUID };
+                String[] args = new String[] { dicomId, Filename, FileDateTime, PatientID, PatientName, PatientAge, PatientGender, PatientWeight, HeartRate, Modality, StudyDescription, AnatomyPlane, ExtraNotes, HospitalUID };
                 byte[] response = PatientManagerContract.submitTransaction("updateDICOM", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
                 String responseString = new String(response);
                 assertThat(responseString).isEqualTo("DICOM updated"); // se ritorna true il test sarà positivo
