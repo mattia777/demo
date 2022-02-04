@@ -46,7 +46,7 @@ public class PatientContract implements ContractInterface {
 
         PatientEvent event = new PatientEvent();
         String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype"); //coppia chiave valore
-        if(usertypevalue != "doctor") {  // CHECK
+        if(!usertypevalue.equals("doctor")) {  // CHECK
             event.put("@time", ctx.getStub().getTxTimestamp().toString());
             throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges"); // EFFECT
         }
@@ -78,7 +78,7 @@ public class PatientContract implements ContractInterface {
 
         PatientEvent event = new PatientEvent();
         String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
-        if(usertypevalue != "doctor" || usertypevalue != "patient") { // to fix : patients can ONLY read his info, right now all patients can read everyones info
+        if(!usertypevalue.equals("doctor") || !usertypevalue.equals("patient")) { // to fix : patients can ONLY read his info, right now all patients can read everyones info
             event.put("@time", ctx.getStub().getTxTimestamp().toString());
             throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
         }
@@ -100,7 +100,7 @@ public class PatientContract implements ContractInterface {
 
         PatientEvent event = new PatientEvent();
         String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
-        if(usertypevalue != "doctor") {
+        if(!usertypevalue.equals("doctor")) {
             event.put("@time", ctx.getStub().getTxTimestamp().toString());
             throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
         }
@@ -146,7 +146,7 @@ public class PatientContract implements ContractInterface {
         
         DoctorEvent event = new DoctorEvent();
         String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
-        if(usertypevalue != "admin") {
+        if(!usertypevalue.equals("admin")) {
             event.put("@time", ctx.getStub().getTxTimestamp().toString());
             throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
         }
@@ -176,7 +176,7 @@ public class PatientContract implements ContractInterface {
 
         DoctorEvent event = new DoctorEvent();
         String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
-        if(usertypevalue != "doctor") {
+        if(!usertypevalue.equals("doctor")) {
             event.put("@time", ctx.getStub().getTxTimestamp().toString());
             throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
         }
@@ -199,7 +199,7 @@ public class PatientContract implements ContractInterface {
 
         DoctorEvent event = new DoctorEvent();
         String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
-        if(usertypevalue != "admin") {
+        if(!usertypevalue.equals("admin")) {
             event.put("@time", ctx.getStub().getTxTimestamp().toString());
             throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
         }
@@ -236,7 +236,7 @@ public class PatientContract implements ContractInterface {
 
         DICOMEvent event = new DICOMEvent();
         String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
-        if(usertypevalue != "doctor") {
+        if(!usertypevalue.equals("doctor")) {
             event.put("@time", ctx.getStub().getTxTimestamp().toString());
             throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
         }
@@ -278,7 +278,7 @@ public class PatientContract implements ContractInterface {
 
         DICOMEvent event = new DICOMEvent();
         String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
-        if(usertypevalue != "doctor" || usertypevalue != "patient") { // to fix : patients can ONLY read his DICOMs, right now all patients can read everyones DICOMs
+        if(!usertypevalue.equals("doctor") || !usertypevalue.equals("patient")) { // to fix : patients can ONLY read his DICOMs, right now all patients can read everyones DICOMs
             event.put("@time", ctx.getStub().getTxTimestamp().toString());
             throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
         }
@@ -306,7 +306,7 @@ public class PatientContract implements ContractInterface {
 
         DICOMEvent event = new DICOMEvent();
         String usertypevalue = ctx.getClientIdentity().getAttributeValue("usertype");
-        if(usertypevalue != "doctor") {
+        if(!usertypevalue.equals("doctor")) {
             event.put("@time", ctx.getStub().getTxTimestamp().toString());
             throw new RuntimeException("The usertype "+usertypevalue+" does not have the privileges");
         }

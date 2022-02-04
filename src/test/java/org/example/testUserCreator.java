@@ -3,7 +3,7 @@ package org.example;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 //import java.util.HashSet;
-import java.util.Set;
+//import java.util.Set;
 //import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.hyperledger.fabric.gateway.Contract;
 //import org.hyperledger.fabric.gateway.ContractEvent;
@@ -22,7 +22,7 @@ import org.hyperledger.fabric_ca.sdk.RegistrationRequest;
 import org.apache.log4j.Logger;
 
 public class testUserCreator {
-        static String caUrl = "http://localhost:17110";
+        static String caUrl = "http://org1ca-api.127-0-0-1.nip.io:8081";
         private static final Logger log = Logger.getLogger(testUserCreator.class);
         static Wallet fabricWallet;
         Gateway gateway1, gateway2, gateway3;
@@ -31,21 +31,22 @@ public class testUserCreator {
         Gateway.Builder builder3;
         Network network1, network2, network3;
         Contract PatientManagerContract;
-        String homedir = System.getProperty("C:\\Users\\scard");
+        //String homedir = System.getProperty("C:\\Users\\scard");
         static Path walletPath1 = Paths.get("C:\\Users\\scard\\fabric-vscode\\v2\\environments\\1 Org Local Fabric\\wallets\\Org1"); // Load an existing wallet holding identities used to access the network.
         static Path connectionProfilePath = Paths.get("C:\\Users\\scard\\.fabric-vscode\\v2\\environments\\1 Org Local Fabric\\gateways\\Org1 Gateway.json"); // Path to a common connection profile describing the network.        
-        String admin = "admin";
-        String doctor = "doctor";
-        String patient = "patient";
+        //String admin = "admin";
+        //String doctor = "doctor";
+        //String patient = "patient";
         static boolean isLocalhostURL = JavaSmartContractUtil.hasLocalhostURLs(connectionProfilePath);
-        static String[][] userIDs = {{"admin01", "doctor01", "patient01"},{"admin02", "doctor02", "patient02" }};
+        static String[][] userIDs = {{"admin01", "doctor01", "patient01"},{"admin", "doctor", "patient" }}; //static String[][] userIDs = {{"identità", ""..."},{"usertype", "..." }};
 
         public static void main(String... args) throws Exception {
                 JavaSmartContractUtil.setDiscoverAsLocalHost(isLocalhostURL);
-                fabricWallet = Wallet.createFileSystemWallet(walletPath1);
+                fabricWallet = Wallets.newFileSystemWallet(walletPath1);
                 builder1 = Gateway.createBuilder();
-                Set<String> s = fabricWallet.getAllLabels();
-                System.out.println(s);
+
+                //Set<String> s = fabricWallet.getAllLabels();
+                //System.out.println(s);
                 CryptoSuite cryptoSuite = CryptoSuite.Factory.getCryptoSuite();
                 HFCAClient caClient = HFCAClient.createNewInstance(caUrl, null);
                 caClient.setCryptoSuite(cryptoSuite);
@@ -64,7 +65,8 @@ public class testUserCreator {
                         log.info(userEnrollment);
                         AppUser appUser = new AppUser(userIDs[0][i], "org1", "Org1MSP", userEnrollment);
                         log.info(appUser);
-                        Wallet.Identity wi = Wallet.Identity.createIdentity("Org1MSP", userEnrollment.getCert(), userEnrollment.getKey());
+                        X509Identity wi = Identities.newX509Identity("Org1MSP", userEnrollment);
+                        //Wallet.Identity wi = Wallet.Identity.createIdentity("Org1MSP", userEnrollment.getCert(), userEnrollment.getKey());
                         fabricWallet.put(userIDs[0][i], wi);
                 }
 

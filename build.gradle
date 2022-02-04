@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.hyperledger.fabric:fabric-gateway-java:1.4.2'
+    implementation 'org.hyperledger.fabric:fabric-gateway-java:2.2.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
     testImplementation 'org.assertj:assertj-core:3.14.0'
     testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.10.0'

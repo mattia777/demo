@@ -30,6 +30,7 @@ import org.hyperledger.fabric.gateway.ContractException;
 import org.hyperledger.fabric.gateway.Gateway;
 import org.hyperledger.fabric.gateway.Network;
 import org.hyperledger.fabric.gateway.Wallet;
+import org.hyperledger.fabric.gateway.Wallets;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,12 +45,13 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
  public final class PatientContractTest {
 
-    Wallet fabricWallet;
+    Wallet 
+    fabricWallet;
     Gateway gateway1, gateway2, gateway3;
     Gateway.Builder builder1, builder2, builder3; // Configure the gateway connection used to access the network.
     Network network1, network2, network3;
-    Contract PatientManagerContract;
-    String homedir = System.getProperty("C:\\Users\\scard");
+    Contract PatientContractPatient, PatientContractDoctor, PatientContractAdmin; //PatientManagerContract
+    //String homedir = System.getProperty("C:\\Users\\scard");
     Path walletPath1 = Paths.get("C:\\Users\\scard\\fabric-vscode\\v2\\environments\\1 Org Local Fabric\\wallets\\Org1"); // Load an existing wallet holding identities used to access the network.
     Path connectionProfilePath = Paths.get("C:\\Users\\scard\\.fabric-vscode\\v2\\environments\\1 Org Local Fabric\\gateways\\Org1 Gateway.json"); // Path to a common connection profile describing the network.
     String admin = "admin";
@@ -69,7 +71,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
     public void before() throws Exception {
         assertThatCode(() -> {
             JavaSmartContractUtil.setDiscoverAsLocalHost(isLocalhostURL);
-            fabricWallet = Wallet.createFileSystemWallet(walletPath1);
+            fabricWallet = Wallets.newFileSystemWallet(walletPath1);
 
             //Set<String> set = fabricWallet.getAllLabels();
 
@@ -77,22 +79,25 @@ import static org.assertj.core.api.Assertions.assertThatCode;
             builder1.identity(fabricWallet, patient).networkConfig(connectionProfilePath).discovery(true);
             gateway1 = builder1.connect();
             network1 = gateway1.getNetwork("mychannel");
-            PatientManagerContract = network1.getContract("patientProcess", "patientContract");
+            PatientContractPatient = network1.getContract("demo_blockchain", "PatientContract"); // in hyperledger c'è la nozione di chaincode che sarebbe un container di smart contract (il chaincode può contenere più smartc)
+            //nel mio caso ho un solo chaincode e un solo smartc, il primo parametro indica a quale chaincode mi voglio rifierire (a quale container di smartc mi devo riferire)
+            // demo_blockchain è il nome assegnato alla chaincode quando è stato installato il contratto sulla blockchain
+            // il secondo parametro è la classe dove c'è la logica (Patient Contract), è il nome delcontratto presente nella chaincode 
             
-            builder2 = Gateway.createBuilder();
+            builder2 = Gateway.createBuilder(); //ogni sequenza prende un'identità e in base a questa entità crea una connessione verso la blockchain, ci deve essere una connessione per ogni entità
             builder2.identity(fabricWallet, doctor).networkConfig(connectionProfilePath).discovery(true);
             gateway2 = builder2.connect();
             network2 = gateway2.getNetwork("mychannel");
-            PatientManagerContract = network2.getContract("doctorProcess", "doctorContract");
+            PatientContractDoctor = network2.getContract("demo_blockchain", "PatientContract"); // connessione attraverso le quali si effettuano le transazioni verso la blockchain assumendo un'identità (paziente, admin, dottore)
             
             builder3 = Gateway.createBuilder();
             builder3.identity(fabricWallet, admin).networkConfig(connectionProfilePath).discovery(true);
             gateway3 = builder3.connect();
             network3 = gateway3.getNetwork("mychannel");
-            PatientManagerContract = network3.getContract("adminProcess", "adminContract");
+            PatientContractAdmin = network3.getContract("demo_blockchain", "PatientContract"); //queste rappresentano 3 connessioni allo stesso smart contract inizializzate a tre variabili diverse
             
             
-            PatientManagerContract.addContractListener(eventListener);
+            PatientContractAdmin.addContractListener(eventListener);
 
         }).doesNotThrowAnyException();
     }
@@ -102,7 +107,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
         gateway1.close();
         gateway2.close();
         gateway3.close();
-        PatientManagerContract.removeContractListener(eventListener);
+        PatientContractAdmin.removeContractListener(eventListener);
     }
 /** PATIENT UNIT TEST */
 
@@ -117,7 +122,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
             String gender = "gender";
             String age = "age";
             String[] args = new String[] { patientId, name, surname, gender, age };
-            byte[] response = PatientManagerContract.submitTransaction("createPatient", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
+            byte[] response = PatientContractDoctor.submitTransaction("createPatient", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
             String responseString = new String(response);
             assertThat(responseString).isEqualTo("Patient " + patientId + " created"); // se ritorna true il test sarà positivo
         }
@@ -126,7 +131,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
         public void PatientalreadyExists() throws ContractException, TimeoutException, InterruptedException {
             String patientId = "patientId" + currTime;
             String[] args = new String[] { patientId };
-            byte[] response = PatientManagerContract.submitTransaction("patientExists", args);
+            byte[] response = PatientContractAdmin.submitTransaction("patientExists", args);
             String responseString = new String(response);
             assertThat(responseString).isEqualTo("The Patient " + patientId + " already exists");
         }
@@ -135,22 +140,22 @@ import static org.assertj.core.api.Assertions.assertThatCode;
     public void PatientRead() throws ContractException, TimeoutException, InterruptedException {
         String patientId = "patientId" + currTime;
         String[] args = new String[] { patientId};
-        byte[] response = PatientManagerContract.evaluateTransaction("readPatient", args);
+        byte[] response = PatientContractAdmin.evaluateTransaction("readPatient", args);
         String responseString = new String(response);
         System.out.println(responseString);
         assertThat(responseString).contains("reading patient" + patientId + "files");
     }
 
-    /*
+    
     @Test
     public void PatientReadFail() throws ContractException, TimeoutException, InterruptedException {
         String patientId = "patientId" + currTime;
-        String[] args = new String[] { processID, patientId };
-        byte[] response = PatientManagerContract.evaluateTransaction("readPatient", args);
+        String[] args = new String[] { patientId, patientId };
+        byte[] response = PatientContractAdmin.evaluateTransaction("readPatient", args);
         String responseString = new String(response);
         assertThat(responseString).contains("Invalid user type: patient");
     }
-    */
+    
 
     @Nested
     class PatientUpdates {
@@ -162,7 +167,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
             String gender = "gender";
             String age = "age";
             String[] args = new String[] { patientId, name, surname, gender, age };
-            byte[] response = PatientManagerContract.submitTransaction("updatePatient", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
+            byte[] response = PatientContractAdmin.submitTransaction("updatePatient", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
             String responseString = new String(response);
             assertThat(responseString).isEqualTo("Patient" + patientId + "updated"); // se ritorna true il test sarà positivo
         }
@@ -180,7 +185,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
             String surname = "doctorsurnmae";
             String hospital = "hospital";
             String[] args = new String[] { doctorId, name, surname, hospital };
-            byte[] response = PatientManagerContract.submitTransaction("createDoctor", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
+            byte[] response = PatientContractAdmin.submitTransaction("createDoctor", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
             String responseString = new String(response);
             assertThat(responseString).isEqualTo("Doctor" + doctorId + "created"); // se ritorna true il test sarà positivo
         }
@@ -189,7 +194,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
         public void DoctoralreadyExists() throws ContractException, TimeoutException, InterruptedException {
             String doctorId = "doctorId" + currTime;
             String[] args = new String[] { doctorId };
-            byte[] response = PatientManagerContract.submitTransaction("doctorExists", args);
+            byte[] response = PatientContractAdmin.submitTransaction("doctorExists", args);
             String responseString = new String(response);
             assertThat(responseString).isEqualTo("The Doctor " + doctorId + " already exists");
         }
@@ -198,22 +203,20 @@ import static org.assertj.core.api.Assertions.assertThatCode;
     public void DoctorRead() throws ContractException, TimeoutException, InterruptedException {
         String doctorId = "doctorId" + currTime;
         String[] args = new String[] { doctorId };
-        byte[] response = PatientManagerContract.evaluateTransaction("readDoctor", args);
+        byte[] response = PatientContractAdmin.evaluateTransaction("readDoctor", args);
         String responseString = new String(response);
         System.out.println(responseString);
         assertThat(responseString).contains("reading doctor " + doctorId + " files");
     }
-    /*
+    
     @Test
     public void DoctorReadFail() throws ContractException, TimeoutException, InterruptedException {
         String doctorId = "doctorId";
-        String[] args = new String[] { processID, doctorId };
-        byte[] response = PatientManagerContract.evaluateTransaction("readDoctor", args);
+        String[] args = new String[] { doctorId, doctorId };
+        byte[] response = PatientContractAdmin.evaluateTransaction("readDoctor", args);
         String responseString = new String(response);
         assertThat(responseString).contains("Invalid user type: doctor");
     }
-    */
-
     @Nested
     class DoctorUpdates {
         @Test
@@ -223,7 +226,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
             String surname = "doctorsurnmae";
             String hospital = "hospital";
             String[] args = new String[] { doctorId, name, surname, hospital };
-            byte[] response = PatientManagerContract.submitTransaction("updateDoctor", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
+            byte[] response = PatientContractAdmin.submitTransaction("updateDoctor", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
             String responseString = new String(response);
             assertThat(responseString).isEqualTo("Doctor " + doctorId + " updated"); // se ritorna true il test sarà positivo
         }
@@ -252,7 +255,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
                 String ExtraNotes = "ExtraNotes";
                 String HospitalUID = "HospitalUID";
                 String[] args = new String[] { dicomId, Filename, FileDateTime, PatientID, PatientName, PatientAge, PatientGender, PatientWeight, HeartRate, Modality, StudyDescription, AnatomyPlane, ExtraNotes, HospitalUID };
-                byte[] response = PatientManagerContract.submitTransaction("createDICOM", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
+                byte[] response = PatientContractAdmin.submitTransaction("createDICOM", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
                 String responseString = new String(response);
                 assertThat(responseString).isEqualTo("DICOM created"); // se ritorna true il test sarà positivo
         }
@@ -261,7 +264,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
         public void DICOMalreadyExists() throws ContractException, TimeoutException, InterruptedException {
             String dicomId = "dicomId" + currTime;
             String[] args = new String[] { dicomId };
-            byte[] response = PatientManagerContract.submitTransaction("dicomExists", args);
+            byte[] response = PatientContractAdmin.submitTransaction("dicomExists", args);
             String responseString = new String(response);
             assertThat(responseString).isEqualTo("The DICOM " + dicomId + " already exists");
         }
@@ -271,7 +274,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
         String dicomId = "dicomId" + currTime;
         String PatientID = "PatientID";
         String[] args = new String[] { dicomId, PatientID };
-        byte[] response = PatientManagerContract.evaluateTransaction("readDICOM", args);
+        byte[] response = PatientContractAdmin.evaluateTransaction("readDICOM", args);
         String responseString = new String(response);
         System.out.println(responseString);
         assertThat(responseString).contains("reading patient's "+ PatientID +" dicom " +dicomId);
@@ -283,7 +286,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
         String dicomId = "dicomId" + currTime;
         String PatientID = "PatientID";
         String[] args = new String[] { dicomId, PatientID };
-        byte[] response = PatientManagerContract.evaluateTransaction("readDICOM", args);
+        byte[] response = PatientContractAdmin.evaluateTransaction("readDICOM", args);
         String responseString = new String(response);
         assertThat(responseString).contains("Invalid user type: doctor");
     }
@@ -309,7 +312,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
                 String ExtraNotes = "ExtraNotes";
                 String HospitalUID = "HospitalUID";
                 String[] args = new String[] { dicomId, Filename, FileDateTime, PatientID, PatientName, PatientAge, PatientGender, PatientWeight, HeartRate, Modality, StudyDescription, AnatomyPlane, ExtraNotes, HospitalUID };
-                byte[] response = PatientManagerContract.submitTransaction("updateDICOM", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
+                byte[] response = PatientContractAdmin.submitTransaction("updateDICOM", args); // se è una transizione di scrittura, viene eseguita su tutti i nodi
                 String responseString = new String(response);
                 assertThat(responseString).isEqualTo("DICOM updated"); // se ritorna true il test sarà positivo
         }
