@@ -1,6 +1,4 @@
-- Implementare lettura metadati DICOM 
 - il paziente può leggere SOLO i propri dati.
-- se un utente è dottore può leggere i dati di TUTTI i pazienti.
 
 /**
  * 

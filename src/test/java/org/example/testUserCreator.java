@@ -38,7 +38,7 @@ public class testUserCreator {
         //String doctor = "doctor";
         //String patient = "patient";
         static boolean isLocalhostURL = JavaSmartContractUtil.hasLocalhostURLs(connectionProfilePath);
-        static String[][] userIDs = {{"admin01", "doctor01", "patient01"},{"admin", "doctor", "patient" }}; //static String[][] userIDs = {{"identità", ""..."},{"usertype", "..." }};
+        static String[][] userIDs = {{"admin04", "doctor04", "patient04"},{"admin", "doctor", "patient" }}; //static String[][] userIDs = {{"identità", ""..."},{"usertype", "..." }};
 
         public static void main(String... args) throws Exception {
                 JavaSmartContractUtil.setDiscoverAsLocalHost(isLocalhostURL);
