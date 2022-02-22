@@ -17,7 +17,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.util.LinkedList;
 
-@Contract(name = "PatientContract",info = @Info(title = "Smart Contract", description = "My Smart Contract", version = "0.0.1", license = @License(name = "Apache-2.0", url = ""), contact =  @Contact(email = "scardamaglia.mattia@gmail.com", name = "cartella2", url = "http://cartella2.me")))
+@Contract(name = "PatientContract",info = @Info(title = "Smart Contract", description = "My Smart Contract", version = "0.0.1", license = @License(name = "Apache-2.0", url = ""), contact =  @Contact(email = "scardamaglia.mattia@gmail.com", name = "adf", url = "")))
 
 @Default
 public class PatientContract implements ContractInterface {
